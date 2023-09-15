@@ -1,0 +1,773 @@
+---
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+--- 
+# FAVAR estimation through Gibbs sampling
+
+  Because of some technicalities, the fact that irf function is named in the same way in both Vars and FAVAR packages, we preferred to put the FAVAR estimation through the Gibbs sampling at the end of this work, after having finished to work with Vars package.
+  
+  FAVAR estimation through Gibbs sampling is a technique used to estimate the parameters of a FAVAR model by employing Gibbs sampling, a Markov chain Monte Carlo (MCMC) method. Gibbs sampling is a popular MCMC technique used for estimating complex models when direct sampling is difficult. It is particularly useful when dealing with models that have high-dimensional parameter spaces or when the joint distribution of parameters is not analytically tractable.
+  In FAVAR estimation through Gibbs sampling, the goal is to estimate the parameters of the FAVAR model, including the coefficients of the VAR equations and the factor loadings. The Gibbs sampling algorithm involves iteratively sampling values for each parameter from their conditional posterior distributions, given the values of other parameters.
+  FAVAR estimation through Gibbs sampling allows for the estimation of both the dynamic relationships captured by the VAR model and the static relationships captured by the factor loadings. This approach is particularly useful when the number of variables in the VAR model is large, and it helps to address the issue of dimensionality by incorporating the information contained in a smaller number of factors.
+  
+
+```{r dataset bayesian, include=FALSE}
+rm(list=ls())
+library(quantmod)
+
+
+
+getSymbols('COMPNFB', src='FRED') #5 # AVERAGE HOURLY EARNINGS
+COMPNFB = diff(log(COMPNFB))
+COMPNFB1 = window(COMPNFB,start='1959-04-01',end = '2004-07-01')
+
+getSymbols('CUMFNS',src='FRED')  ##1 # CAPACITY UTILIZATION
+CUMFNS = to.quarterly(CUMFNS, OHLC = FALSE, name = NULL)
+CUMFNS = diff(log(CUMFNS))
+CUMFNS1 = window(CUMFNS,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('UMCSENT',src='FRED') #5 # CONSUMER EXPECTATIONS
+UMCSENT = to.quarterly(UMCSENT, OHLC = FALSE, name = NULL)
+UMCSENT = diff(log(UMCSENT))
+UMCSENT1 = window(UMCSENT,start ='1959 Q1',end = '2004 Q2')
+
+getSymbols('GDPDEF', src='FRED') #5
+GDPDEF = to.quarterly(GDPDEF, OHLC = FALSE, name = NULL)
+GDPDEF = diff(log(GDPDEF))
+GDPDEF1 = window(GDPDEF,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('AWHMAN',src='FRED')#2
+AWHMAN = to.quarterly(AWHMAN, OHLC = FALSE, name = NULL)
+AWHMAN = diff(AWHMAN)
+AWHMAN1 = window(AWHMAN,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('AWOTMAN',src='FRED')#2
+AWOTMAN = to.quarterly(AWOTMAN, OHLC = FALSE, name = NULL)
+AWOTMAN=diff(AWOTMAN)
+AWOTMAN1 = window(AWOTMAN,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('BOGNONBR',src='FRED')#5
+BOGNONBR = to.quarterly(BOGNONBR, OHLC = FALSE, name = NULL)
+BOGNONBR=diff(log(BOGNONBR))
+BOGNONBR1 = window(BOGNONBR,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('CE16OV',src='FRED') #5
+CE16OV = to.quarterly(CE16OV, OHLC = FALSE, name = NULL)
+CE16OV=diff(log(CE16OV))
+CE16OV1 = window(CE16OV,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('CIVPART',src='FRED') #2
+CIVPART = to.quarterly(CIVPART, OHLC = FALSE, name = NULL)
+CIVPART=diff(CIVPART)
+CIVPART1 = window(CIVPART,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('CLF16OV',src='FRED') #5
+CLF16OV = to.quarterly(CLF16OV, OHLC = FALSE, name = NULL)
+CLF16OV=diff(log(CLF16OV))
+CLF16OV1 = window(CLF16OV,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('CNCF',src='FRED') #DEF #5
+CNCF = diff(log(CNCF)) #DEF
+CNCF1 = window(CNCF,start = '1959-04-01',end = '2004-07-01') #DEF
+CNCF1 = CNCF1 - GDPDEF1
+
+getSymbols('COMPNFB',src='FRED') #5
+COMPNFB = diff(log(COMPNFB))
+COMPNFB1 = window(COMPNFB,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('COMPRNFB',src='FRED') #5
+COMPRNFB = diff(log(COMPRNFB))
+COMPRNFB1 = window(COMPRNFB,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('CP',src='FRED') #DEF #5
+CP = diff(log(CP))
+CP1 = window(CP,start = '1959-04-01',end = '2004-07-01') #DEF
+CP1 = CP1 - GDPDEF1
+
+getSymbols('DEMDEPSL',src='FRED') #5
+DEMDEPSL = to.quarterly(DEMDEPSL, OHLC = FALSE, name = NULL)
+DEMDEPSL = diff(log(DEMDEPSL))
+DEMDEPSL1 = window(DEMDEPSL,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('DIVIDEND',src='FRED') #DEF #5
+DIVIDEND = diff(log(DIVIDEND)) #DEF
+DIVIDEND1 = window(DIVIDEND,start = '1959-04-01',end = '2004-07-01')
+DIVIDEND1 = DIVIDEND1 - GDPDEF1
+
+getSymbols('DPIC96',src='FRED') #5
+DPIC96 = diff(log(DPIC96))
+DPIC961 = window(DPIC96,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('EXCRESNS',src='FRED') #2
+EXCRESNS = to.quarterly(EXCRESNS, OHLC = FALSE, name = NULL)
+EXCRESNS = diff(EXCRESNS)
+EXCRESNS1 = window(EXCRESNS,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('EXPGSC1',src='FRED') #5
+EXPGSC1 = diff(log(EXPGSC1))
+EXPGSC11 = window(EXPGSC1,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('FGEXPND',src='FRED') #DEF #5
+FGEXPND = diff(log(FGEXPND)) #DEF
+FGEXPND1 = window(FGEXPND,start = '1959-04-01',end = '2004-07-01') #DEF
+FGEXPND1 = FGEXPND1 - GDPDEF1
+
+getSymbols('FGRECPT',src='FRED') #DEF #5
+FGRECPT = diff(log(FGRECPT)) #DEF
+FGRECPT1 = window(FGRECPT,start = '1959-04-01',end = '2004-07-01') #DEF
+FGRECPT1 = FGRECPT1 - GDPDEF1
+
+getSymbols('FINSLC1',src='FRED') #5
+FINSLC1 = diff(log(FINSLC1),differences = 2)
+FINSLC11 = window(FINSLC1,start ='1959-04-01',end = '2004-07-01')
+
+getSymbols('GCEC1',src='FRED') #5
+GCEC1 = diff(log(GCEC1))
+GCEC11 = window(GCEC1,start = '1959-04-01',end = '2004-07-01') 
+
+getSymbols('GDPCTPI',src='FRED') #5
+GDPCTPI = diff(log(GDPCTPI))
+GDPCTPI1 = window(GDPCTPI,start = '1959-04-01',end = '2004-07-01') 
+
+getSymbols('GEXPND',src='FRED') #DEF #5 
+GEXPND = diff(log(GEXPND)) #DEF
+GEXPND1 = window(GEXPND,start = '1959-04-01',end = '2004-07-01') #DEF
+GEXPND1 = GEXPND1 - GDPDEF1
+
+getSymbols('GNPC96',src='FRED') #5
+GNPC96 = diff(log(GNPC96)) 
+GNPC961 = window(GNPC96,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('GNPCTPI',src='FRED') #5
+GNPCTPI = diff(log(GNPCTPI))
+GNPCTPI1 = window(GNPCTPI,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('GNPDEF',src='FRED') #5 
+GNPDEF = diff(log(GNPDEF))
+GNPDEF1 = window(GNPDEF,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('GPDIC1',src='FRED') #5 
+GPDIC1 = diff(log(GPDIC1))
+GPDIC11 = window(GPDIC1,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('GPSAVE',src='FRED') #DEF #5
+GPSAVE = diff(log(GPSAVE)) #DEF
+GPSAVE1 = window(GPSAVE,start = '1959-04-01',end = '2004-07-01')
+GPSAVE1 = GPSAVE1 - GDPDEF1
+
+getSymbols('GRECPT',src='FRED') #DEF #5
+GRECPT = diff(log(GRECPT)) #DEF
+GRECPT1 = window(GRECPT,start = '1959-04-01',end = '2004-07-01')#DEF
+GRECPT1 = GRECPT1 - GDPDEF1
+
+getSymbols('HOANBS',src='FRED') #5
+HOANBS = diff(log(HOANBS))
+HOANBS1 = window(HOANBS,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('IMPGSC1',src='FRED') #5
+IMPGSC1 = diff(log(IMPGSC1))
+IMPGSC11 = window(IMPGSC1,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('INDPRO',src='FRED')  ##5 industr
+INDPRO = to.quarterly(INDPRO, OHLC = FALSE, name = NULL)
+INDPRO=diff(log(INDPRO))
+INDPRO1=window(INDPRO,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('INVEST',src='FRED') ##5  NOOOOOO
+INVEST= to.quarterly(INVEST, OHLC = FALSE, name = NULL)
+INVEST=diff(log(INVEST))
+INVEST1=window(INVEST,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('IPBUSEQ',src='FRED')   ##5
+IPBUSEQ = to.quarterly(IPBUSEQ, OHLC = FALSE, name = NULL)
+IPBUSEQ=diff(log(IPBUSEQ))
+IPBUSEQ1=window(IPBUSEQ,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('IPCONGD',src='FRED')  ##5
+IPCONGD = to.quarterly(IPCONGD, OHLC = FALSE, name = NULL)
+IPCONGD=diff(log(IPCONGD))
+IPCONGD1=window(IPCONGD,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('IPDCONGD',src='FRED')  ##5
+IPDCONGD = to.quarterly(IPDCONGD, OHLC = FALSE, name = NULL)
+IPDCONGD=diff(log(IPDCONGD))
+IPDCONGD1=window(IPDCONGD,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('IPFINAL',src='FRED')  ##5
+IPFINAL = to.quarterly(IPFINAL, OHLC = FALSE, name = NULL)
+IPFINAL=diff(log(IPFINAL))
+IPFINAL1=window(IPFINAL,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('IPMAT',src='FRED')  ##5
+IPMAT = to.quarterly(IPMAT, OHLC = FALSE, name = NULL)
+IPMAT=diff(log(IPMAT))
+IPMAT1=window(IPMAT,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('IPNCONGD',src='FRED')  ##5
+IPNCONGD = to.quarterly(IPNCONGD, OHLC = FALSE, name = NULL)
+IPNCONGD=diff(log(IPNCONGD))
+IPNCONGD1=window(IPNCONGD,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('LGTDCBSL',src='FRED')  ##5
+LGTDCBSL = to.quarterly(LGTDCBSL, OHLC = FALSE, name = NULL)
+LGTDCBSL=diff(log(LGTDCBSL))
+LGTDCBSL1=window(LGTDCBSL,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('LNS14000001',src='FRED')  ##1
+LNS14000001 = to.quarterly(LNS14000001, OHLC = FALSE, name = NULL)
+LNS140000011=window(LNS14000001,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('LNS14000060',src='FRED')  ##1
+LNS14000060 = to.quarterly(LNS14000060, OHLC = FALSE, name = NULL)
+LNS140000601=window(LNS14000060,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('LTDSL',src='FRED')   ##5
+LTDSL = to.quarterly(LTDSL, OHLC = FALSE, name = NULL)
+LTDSL=diff(log(LTDSL))
+LTDSL1=window(LTDSL,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('NFCPATAX',src='FRED')  ##5 def
+NFCPATAX = diff(log(NFCPATAX))
+NFCPATAX1 = window(NFCPATAX,start = '1959-04-01',end = '2004-07-01')
+NFCPATAX1 =NFCPATAX1 - GDPDEF1
+
+getSymbols('NFORBRES',src='FRED')  ##2
+NFORBRES = to.quarterly(NFORBRES, OHLC = FALSE, name = NULL)
+NFORBRES = diff(NFORBRES)
+NFORBRES1 = window(NFORBRES,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('NICUR',src='FRED')  ##5 def?
+NICUR=diff(log(NICUR))
+NICUR1=window(NICUR,start = '1959-04-01',end = '2004-07-01')
+NICUR1 = NICUR1 - GDPDEF1
+
+getSymbols('OILPRICE',src='FRED')  ##5
+OILPRICE = to.quarterly(OILPRICE, OHLC = FALSE, name = NULL)
+OILPRICE=diff(log(OILPRICE))
+OILPRICE1=window(OILPRICE,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('OPHNFB',src='FRED')  ##5
+OPHNFB=diff(log(OPHNFB))
+OPHNFB1=window(OPHNFB,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('OTHSEC',src='FRED')  ##5
+OTHSEC = to.quarterly(OTHSEC, OHLC = FALSE, name = NULL)
+OTHSEC=diff(log(OTHSEC))
+OTHSEC1=window(OTHSEC,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('OUTNFB',src='FRED')  ##5
+OUTNFB=diff(log(OUTNFB))
+OUTNFB1=window(OUTNFB,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('PCECC96',src='FRED')  ##5
+PCECC96=diff(log(PCECC96))
+PCECC961=window(PCECC96,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('PPICPE',src='FRED')  ##5
+PPICPE = to.quarterly(PPICPE, OHLC = FALSE, name = NULL)
+PPICPE=diff(log(PPICPE))
+PPICPE1=window(PPICPE,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('PPICRM',src='FRED')  ##5
+PPICRM = to.quarterly(PPICRM, OHLC = FALSE, name = NULL)
+PPICRM=diff(log(PPICRM))
+PPICRM1=window(PPICRM,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('PPIFCF',src='FRED')  ##5
+PPIFCF = to.quarterly(PPIFCF, OHLC = FALSE, name = NULL)
+PPIFCF=diff(log(PPIFCF))
+PPIFCF1=window(PPIFCF,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('PPIFCG',src='FRED')  ##5
+PPIFCG = to.quarterly(PPIFCG, OHLC = FALSE, name = NULL)
+PPIFCG=diff(log(PPIFCG))
+PPIFCG1=window(PPIFCG,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('PPIFGS',src='FRED')  ##5
+PPIFGS = to.quarterly(PPIFGS, OHLC = FALSE, name = NULL)
+PPIFGS=diff(log(PPIFGS))
+PPIFGS1=window(PPIFGS,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('PPIITM',src='FRED')  ##5
+PPIITM = to.quarterly(PPIITM, OHLC = FALSE, name = NULL)
+PPIITM=diff(log(PPIITM),differences = 2)
+PPIITM1=window(PPIITM,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('REALLN',src='FRED')  ##5
+REALLN = to.quarterly(REALLN, OHLC = FALSE, name = NULL)
+REALLN=diff(log(REALLN))
+REALLN1=window(REALLN,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('REQRESNS',src='FRED')  ##5
+REQRESNS = to.quarterly(REQRESNS, OHLC = FALSE, name = NULL)
+REQRESNS=diff(log(REQRESNS))
+REQRESNS1=window(REQRESNS,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('RESBALNS',src='FRED')  ##5
+RESBALNS = to.quarterly(RESBALNS, OHLC = FALSE, name = NULL)
+RESBALNS=diff(log(RESBALNS))
+RESBALNS1=window(RESBALNS,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('SAVINGSL',src='FRED')  ##5
+SAVINGSL = to.quarterly(SAVINGSL, OHLC = FALSE, name = NULL)
+SAVINGSL=diff(log(SAVINGSL))
+SAVINGSL1=window(SAVINGSL,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('SRVPRD',src='FRED') #All Employees: Service-Providing Industries 
+##5(differenze prime dei log) #monthly 
+SRVPRD = to.quarterly(SRVPRD, OHLC = FALSE, name = NULL)
+SRVPRD =diff(log(SRVPRD))
+SRVPRD1 = window(SRVPRD, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('SVSTCBSL',src='FRED') #Small Time Deposits at Commercial Banks
+##5 #monthly 
+SVSTCBSL = to.quarterly(SVSTCBSL, OHLC = FALSE, name = NULL)
+SVSTCBSL =diff(log(SVSTCBSL))
+SVSTCBSL1 = window(SVSTCBSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('STDCBSL',src='FRED') #Small Time Deposits - Total
+##5 #monthly
+STDCBSL = to.quarterly(STDCBSL, OHLC = FALSE, name = NULL)
+STDCBSL = diff(log(STDCBSL))
+STDCBSL1 = window(STDCBSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('STDSL',src='FRED')  #Small Time Deposits - Total 
+##5 #monthly
+STDSL = to.quarterly(STDSL, OHLC = FALSE, name = NULL)
+STDSL = diff(log(STDSL))
+STDSL1 = window(STDSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('SVGCBSL',src='FRED') #Savings Deposits at Commercial Banks
+##5 #monthly
+SVGCBSL = to.quarterly(SVGCBSL, OHLC = FALSE, name = NULL)
+SVGCBSL = diff(log(SVGCBSL))
+SVGCBSL1 = window(SVGCBSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('SVSTCBSL',src='FRED') #Savings and Small Time Deposits at Commercial Banks
+#5 #monthly 
+SVSTCBSL = to.quarterly(SVSTCBSL, OHLC = FALSE, name = NULL)
+SVSTCBSL = diff(log(SVSTCBSL))
+SVSTCBSL1 = window(SVSTCBSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('SVSTSL',src='FRED') # Savings and Small Time Deposits - Total
+##5 #monthly
+SVSTSL = to.quarterly(SVSTSL, OHLC = FALSE, name = NULL)
+SVSTSL = diff(log(SVSTSL))
+SVSTSL1 = window(SVSTSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TCDSL',src='FRED') #Total Checkable Deposits
+##5 #monthly
+TCDSL = to.quarterly(TCDSL, OHLC = FALSE, name = NULL)
+TCDSL = diff(log(TCDSL))
+TCDSL1 = window(TCDSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TOTALSL',src='FRED') #Total Consumer Credit Outstanding
+##5 #monthly
+TOTALSL = to.quarterly(TOTALSL, OHLC = FALSE, name = NULL)
+TOTALSL = diff(log(TOTALSL))
+TOTALSL1 = window(TOTALSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TOTTDP',src='FRED') 
+#Total Time and Savings Deposits at All Depository Institutions
+##5 #monthly
+TOTTDP = to.quarterly(TOTTDP, OHLC = FALSE, name = NULL)
+TOTTDP = diff(log(TOTTDP))
+TOTTDP1 = window(TOTTDP, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('UEMPMEAN',src='FRED') #Average (Mean) Duration of Unemployment
+##2(differenze prime) #monthly
+UEMPMEAN = to.quarterly(UEMPMEAN, OHLC = FALSE, name = NULL)
+UEMPMEAN = diff(UEMPMEAN)
+UEMPMEAN1 = window(UEMPMEAN, start = '1959 Q1', end = '2004 Q2')
+##N.A. NELLA PRIMA RIGA !
+
+getSymbols('ULCNFB',src='FRED') #Nonfarm Business Sector: Unit Labor Cost 
+##5 #quarterly
+ULCNFB = diff(log(ULCNFB))
+ULCNFB1 = window(ULCNFB, start = '1959-04-01', end = '2004-07-01')
+
+getSymbols('UNEMPLOY',src='FRED')  # Unemployed
+##5 #monthly
+UNEMPLOY = to.quarterly(UNEMPLOY, OHLC = FALSE, name = NULL)
+UNEMPLOY=diff(log(UNEMPLOY))
+UNEMPLOY1 = window(UNEMPLOY, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('UNLPNBS',src='FRED') # Nonfarm Business Sector: Unit Nonlabor Payments
+##5 #quarterly 
+UNLPNBS=diff(log(UNLPNBS))
+UNLPNBS1 = window(UNLPNBS, start = '1959-04-01', end = '2004-07-01')
+
+getSymbols('UNRATE',src='FRED') #Civilian Unemployment Rate
+##1(no trasformata) #monthly
+UNRATE = to.quarterly(UNRATE, OHLC = FALSE, name = NULL)
+UNRATE1 = window(UNRATE, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('USGOOD',src='FRED') #All Employees: Goods-Producing Industries
+##5 #monthly
+USGOOD = to.quarterly(USGOOD, OHLC = FALSE, name = NULL)
+USGOOD = diff(log(USGOOD))
+USGOOD1 = window(USGOOD, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('USGSEC',src='FRED') #U.S. Government Securities at All Commercial Banks
+##5 #monthly
+USGSEC = to.quarterly(USGSEC, OHLC = FALSE, name = NULL)
+USGSEC = diff(log(USGSEC))
+USGSEC1 = window(USGSEC, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('USPRIV',src='FRED') # All Employees: Total Private Industries
+##5 #monthly 
+USPRIV = to.quarterly(USPRIV, OHLC = FALSE, name = NULL)
+USPRIV = diff(log(USPRIV))
+USPRIV1 = window(USPRIV, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('WASCUR',src='FRED') 
+#Compensation of Employees: Wages & Salary Accruals (def)
+##DEF ##5
+WASCUR = diff(log(WASCUR))
+WASCUR1 = window(WASCUR, start = '1959-04-01', end = '2004-07-01')
+WASCUR1 = WASCUR1 - GDPDEF1
+
+### From here fast variables ###
+
+getSymbols('AAA',src='FRED') # Moody’s Seasoned Aaa Corporate Bond Yield
+##1 #monthly
+AAA = to.quarterly(AAA, OHLC = FALSE, name = NULL)
+AAA1 = window(AAA, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('BAA',src='FRED') #Moody’s Seasoned Baa Corporate Bond Yield 
+##1 #monthly
+BAA = to.quarterly(BAA, OHLC = FALSE, name = NULL)
+BAA1 = window(BAA, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('BOGAMBSL',src='FRED') 
+#Board of Governors Monetary Base, Adjusted for Changes in Reserve Requirements  
+##5 #monthly
+BOGAMBSL = to.quarterly(BOGAMBSL, OHLC = FALSE, name = NULL)
+BOGAMBSL = diff(log(BOGAMBSL))
+BOGAMBSL1 = window(BOGAMBSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('BOGUMBNS',src='FRED') 
+#Board of Governors Monetary Base, Not Adjusted for Changes in Reserve Requirements
+##5 #monthly 
+BOGUMBNS = to.quarterly(BOGUMBNS, OHLC = FALSE, name = NULL)
+BOGUMBNS = diff(log(BOGUMBNS))
+BOGUMBNS1 = window(BOGUMBNS, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('BUSLOANS',src='FRED') 
+#Commercial and Industrial Loans at All Commercial Banks
+##5 #monthly 
+BUSLOANS = to.quarterly(BUSLOANS, OHLC = FALSE, name = NULL)
+BUSLOANS = diff(log(BUSLOANS))
+BUSLOANS1 = window(BUSLOANS, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('CONSUMER',src='FRED') 
+#Consumer (Individual) Loans at All Commercial Banks
+##5 #monthly 
+CONSUMER = to.quarterly(CONSUMER, OHLC = FALSE, name = NULL)
+CONSUMER = diff(log(CONSUMER))
+CONSUMER1 = window(CONSUMER, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('CURRDD',src='FRED') #Currency Component of M1 Plus Demand Deposits
+##5 #monthly 
+CURRDD = to.quarterly(CURRDD, OHLC = FALSE, name = NULL)
+CURRDD = diff(log(CURRDD))
+CURRDD1 = window(CURRDD, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('CURRSL',src='FRED') #Currency Component of M1
+##5 #monthly 
+CURRSL = to.quarterly(CURRSL, OHLC = FALSE, name = NULL)
+CURRSL = diff(log(CURRSL))
+CURRSL1 = window(CURRSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('GS1',src='FRED') # 1-Year Treasury Constant Maturity Rate 
+##1 #monthly 
+GS1 = to.quarterly(GS1, OHLC = FALSE, name = NULL)
+GS11 = window(GS1, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('GS10',src='FRED') #10-Year Treasury Constant Maturity Rate
+##1 #monthly 
+GS10 = to.quarterly(GS10, OHLC = FALSE, name = NULL)
+GS101 = window(GS10, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('GS3',src='FRED') #3-Year Treasury Constant Maturity Rate 
+##1
+GS3 = to.quarterly(GS3, OHLC = FALSE, name = NULL)
+GS31 = window(GS3, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('GS5', src='FRED') #91 1,notransformation
+GS5 = to.quarterly(GS5, OHLC = FALSE, name = NULL)
+GS51 = window(GS5, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('HOUST', src='FRED') #92, 4,log
+HOUST = to.quarterly(HOUST, OHLC = FALSE, name = NULL)
+HOUST=(log(HOUST))
+HOUST1 = window(HOUST, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('HOUST1F', src='FRED') #93, 4, log
+HOUST1F = to.quarterly(HOUST1F, OHLC = FALSE, name = NULL)
+HOUST1F=(log(HOUST1F))
+HOUST1F1 = window(HOUST1F, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('HOUSTMW', src='FRED') #94, 4,log
+HOUSTMW = to.quarterly(HOUSTMW, OHLC = FALSE, name = NULL)
+HOUSTMW = (log(HOUSTMW))
+HOUSTMW1 = window(HOUSTMW, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('HOUSTNE', src='FRED') #95, 4,log
+HOUSTNE= to.quarterly(HOUSTNE, OHLC = FALSE, name = NULL)
+HOUSTNE=(log(HOUSTNE))
+HOUSTNE1 = window(HOUSTNE, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('HOUSTS', src='FRED') #96, 4, log
+HOUSTS= to.quarterly(HOUSTS, OHLC = FALSE, name = NULL)
+HOUSTS=(log(HOUSTS))
+HOUSTS1 = window(HOUSTS, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('HOUSTW', src='FRED') #97, 4, log
+HOUSTW = to.quarterly(HOUSTW, OHLC = FALSE, name = NULL)
+HOUSTW =(log(HOUSTW))
+HOUSTW1 = window(HOUSTW, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('LOANINV', src='FRED') #98, 5, difference
+LOANINV = to.quarterly(LOANINV, OHLC = FALSE, name = NULL)
+LOANINV = diff(log(LOANINV))
+LOANINV1 = window(LOANINV, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('LOANS', src='FRED') #99 5
+LOANS= to.quarterly(LOANS, OHLC = FALSE, name = NULL)
+LOANS=diff(log(LOANS))
+LOANS1 = window(LOANS, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('M1SL', src='FRED') #100 5
+M1SL= to.quarterly(M1SL, OHLC = FALSE, name = NULL)
+M1SL=diff(log(M1SL))
+M1SL1 = window(M1SL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('M2MSL', src='FRED') #101 5
+M2MSL = to.quarterly(M2MSL, OHLC = FALSE, name = NULL)
+M2MSL = diff(log(M2MSL))
+M2MSL1 = window(M2MSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('M2SL', src='FRED') #102 5
+M2SL= to.quarterly(M2SL, OHLC = FALSE, name = NULL)
+M2SL=diff(log(M2SL))
+M2SL1 = window(M2SL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('MPRIME', src='FRED') #103 1
+MPRIME= to.quarterly(MPRIME, OHLC = FALSE, name = NULL)
+MPRIME1 = window(MPRIME, start = '1959 Q1', end = '2004 Q2')
+
+
+getSymbols('NONREVSL', src='FRED') #104 5
+NONREVSL= to.quarterly(NONREVSL, OHLC = FALSE, name = NULL)
+NONREVSL=diff(log(NONREVSL))
+NONREVSL1 = window(NONREVSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('NREVNCB', src='FRED') #105 5
+NREVNCB= to.quarterly(NREVNCB, OHLC = FALSE, name = NULL)
+NREVNCB=diff(log(NREVNCB))
+NREVNCB1 = window(NREVNCB, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('NREVNCU', src='FRED') #106 5
+NREVNCU= to.quarterly(NREVNCU, OHLC = FALSE, name = NULL)
+NREVNCU= diff(log(NREVNCU))
+NREVNCU1 = window(NREVNCU, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('NREVNFC', src='FRED') #107 5
+NREVNFC= to.quarterly(NREVNFC, OHLC = FALSE, name = NULL)
+NREVNFC=diff(log(NREVNFC))
+NREVNFC1 = window(NREVNFC, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('NREVNSAV', src='FRED') #108 5
+NREVNSAV= to.quarterly(NREVNSAV, OHLC = FALSE, name = NULL)
+NREVNSAV=diff(log(NREVNSAV))
+NREVNSAV1 = window(NREVNSAV, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('PERMITNSA', src='FRED') #109 4
+PERMITNSA= to.quarterly(PERMITNSA, OHLC = FALSE, name = NULL)
+PERMITNSA=(log(PERMITNSA))
+PERMITNSA1 = window(PERMITNSA, start = '1959 Q1', end = '2004 Q2')
+
+
+getSymbols('SP500', src='FRED') #110 
+
+
+getSymbols('TB3MS', src='FRED') #111 1
+TB3MS= to.quarterly(TB3MS, OHLC = FALSE, name = NULL)
+TB3MS1 = window(TB3MS, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TB6MS', src='FRED') #112 1
+TB6MS= to.quarterly(TB6MS, OHLC = FALSE, name = NULL)
+TB6MS1 = window(TB6MS, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TOTALCB', src='FRED') #113 5
+TOTALCB= to.quarterly(TOTALCB, OHLC = FALSE, name = NULL)
+TOTALCB=diff(log(TOTALCB))
+TOTALCB1 = window(TOTALCB, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TOTALFC', src='FRED') #114 5
+TOTALFC= to.quarterly(TOTALFC, OHLC = FALSE, name = NULL)
+TOTALFC=diff(log(TOTALFC))
+TOTALFC1 = window(TOTALFC, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TOTALNFC', src='FRED') #115 5
+TOTALNFC= to.quarterly(TOTALNFC, OHLC = FALSE, name = NULL)
+TOTALNFC=diff(log(TOTALNFC))
+TOTALNFC1 = window(TOTALNFC, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TOTALSAV', src='FRED') #116 5
+TOTALSAV= to.quarterly(TOTALSAV, OHLC = FALSE, name = NULL)
+TOTALSAV=diff(log(TOTALSAV))
+TOTALSAV1 = window(TOTALSAV, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TOTALTCU', src='FRED') #117 5
+TOTALTCU= to.quarterly(TOTALTCU, OHLC = FALSE, name = NULL)
+TOTALTCU=diff(log(TOTALTCU))
+TOTALTCU1 = window(TOTALTCU, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('GDP', src='FRED') #118 5
+GDP=diff(log(GDP))
+GDP1 = window(GDP,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('CPIAUCSL', src='FRED') #118 5
+CPIAUCSL= to.quarterly(CPIAUCSL, OHLC = FALSE, name = NULL)
+CPIAUCSL=diff(log(CPIAUCSL))
+CPIAUCSL1 = window(CPIAUCSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('FEDFUNDS', src='FRED') #119 5
+FEDFUNDS= to.quarterly(FEDFUNDS, OHLC = FALSE, name = NULL)
+FEDFUNDS1=diff(log(FEDFUNDS))
+FEDFUNDS11 = window(FEDFUNDS, start = '1959 Q1', end = '2004 Q2')
+
+## provo a aggiungere variabili che mancano 
+
+
+data=cbind(CUMFNS1,COMPNFB1,AWHMAN1,AWOTMAN1,BOGNONBR1,CE16OV1,CIVPART1,CLF16OV1,CNCF1,COMPNFB1,
+           COMPRNFB1,CP1,DEMDEPSL1,DIVIDEND1,DPIC961,EXCRESNS1,EXPGSC11,FGEXPND1,
+           FGRECPT1,FINSLC11,GCEC11,GDPCTPI1,GDPDEF1,GEXPND1,GNPC961,GNPCTPI1,
+           GNPDEF1,GPDIC11,GPSAVE1,GRECPT1,HOANBS1,IMPGSC11,INDPRO1,IPBUSEQ1,
+           IPCONGD1,IPDCONGD1,IPFINAL1,IPMAT1,IPNCONGD1,LGTDCBSL1,LNS140000011,
+           LNS140000601,LTDSL1,NFCPATAX1,NFORBRES1,NICUR1,OILPRICE1,OPHNFB1,
+           OTHSEC1,OUTNFB1,PCECC961,PPICPE1,PPICRM1,PPIFCF1,PPIFCG1,PPIFGS1,
+           PPIITM1,REALLN1,REQRESNS1,RESBALNS1,SAVINGSL1,SRVPRD1,STDCBSL1,STDSL1,
+           SVGCBSL1,SVSTCBSL1,SVSTSL1,TCDSL1,INVEST1,
+           TOTALSL1,TOTTDP1,UEMPMEAN1,ULCNFB1,UNEMPLOY1,UNLPNBS1,UNRATE1,USGOOD1,
+           USGSEC1,USPRIV1,WASCUR1,AAA1,UMCSENT1,BAA1,BOGAMBSL1,BOGUMBNS1,BUSLOANS1,
+           CONSUMER1,CURRDD1,CURRSL1,GS11,GS101,GS31,GS51,HOUST1,HOUST1F1,
+           HOUSTMW1,HOUSTNE1,HOUSTS1,HOUSTW1,LOANINV1,LOANS1,M1SL1,M2MSL1,M2SL1,
+           MPRIME1,NONREVSL1,NREVNCB1,NREVNCU1,NREVNFC1,NREVNSAV1,PERMITNSA1,
+           TB3MS1,TB6MS1,TOTALCB1,TOTALFC1,TOTALNFC1,TOTALSAV1,TOTALTCU1,GDP1,
+           CPIAUCSL1,FEDFUNDS11)
+
+
+data=data[2:171,]
+
+slowvariables=c('CUMFNS','COMPNFB',"AWHMAN","AWOTMAN","BOGNONBR","CE16OV","CIVPART","CLF16OV",
+                "CNCF","COMPNFB","COMPRNFB",
+                "CP","DEMDEPSL","DIVIDEND","DPIC96","EXCRESNS",
+                "EXPGSC1","FGEXPND","FGRECPT","FINSLC1",
+                "GCEC1","GDPCTPI","GDPDEF","GEXPND","GNPC96","GNPCTPI",
+                "GNPDEF","GPDIC1","GPSAVE","GRECPT",
+                "HOANBS","IMPGSC1","INDPRO","IPBUSEQ","IPCONGD","IPDCONGD",
+                "IPFINAL","IPMAT","IPNCONGD","LGTDCBSL","LNS14000001","LNS14000060",
+                "LTDSL","NFCPATAX","NFORBRES",
+                "OPHNFB","OTHSEC","OUTNFB","PCECC96","PPICPE","PPICRM","PPIFCF",
+                "PPIFCG","PPIFGS","PPIITM",
+                "REALLN","REQRESNS","RESBALNS","SAVINGSL","SRVPRD","STDCBSL","STDSL",
+                "SVGCBSL","SRVPRD",
+                "STDCBSL","STDSL","SVGCBSL","SVSTCBSL","SVSTSL","TCDSL","TOTALSL","TOTTDP",
+                "UEMPMEAN","ULCNFB",
+                "UNEMPLOY","UNLPNBS","UNRATE","USGOOD","USGSEC","USPRIV",
+                "WASCUR",'GDP','CPIAUCSL')
+data_slow = data[,slowvariables]
+ncol(data_slow)
+ncol(data)-ncol(data_slow)
+head(data)
+
+data_scaled = scale(data, center = TRUE, scale = TRUE)
+data_scaled=data_scaled[complete.cases(data_scaled),]
+
+
+```
+
+
+```{r bayesian intro, echo=TRUE}
+true=rep(TRUE,81)
+false=rep(FALSE,37)
+slowcode=c(true,false,TRUE,TRUE)
+dataframe_data = as.data.frame(data_scaled)
+```
+
+```{r bayesian packages, echo=TRUE}
+library(FAVAR)
+library(patchwork)
+```
+
+## FAVAR estimation through Gibbs sampling with 3 factors
+
+  To implement FAVAR estimation with 3 factors, it is necessary to run the function FAVAR in the FAVAR package. About this function, it is necessary to define the so called slowcode, defined before, that defines the position of the slow moving variables. We decided for a really weakly informative, if not non informative at all, prior. This means the algorithm takes more time to provide correct results, but we preferred this way to avoid to influence the results. The number of lags is always 13, and the argument k=3 means that we want to consider only three factors. Finally, the number of iterations we decided to use is lower with respect to the 10,000 iterations of the paper, but this is justified by our necessity to reduce the computational effort. We discarded the first 500 iterations to minimize the effect of initial conditions. 
+  
+```{r fit 3 f, echo=TRUE}
+fit3 <- FAVAR(Y = dataframe_data[,c("FEDFUNDS")],
+             X = dataframe_data[,1:120], slowcode = slowcode, fctmethod = 'BBE',
+             factorprior = list(b0 = 0, vb0 = NULL, c0 = 0.01, d0 = 0.01),
+             varprior = list(b0 = 0,vb0 = 10, nu0 = 0, s0 = 0),
+             nrep = 1500, nburn = 500, K = 3, plag = 13)
+```
+
+### Figure 4 
+  
+  To represent figure 4 we apply the function irf (of the package FAVAR) on the FAVAR model (fit3) generated before. We represented the 18 variables of interests with a time horizon of 48 periods ahead and 90% confidence interval.
+  
+```{r irf1 3 f, echo=TRUE}
+irf_result3_1=irf(fit3,nhor = 48,ci=0.9,resvar = c(121,33,120,112,93,84,104,56,1))
+```
+
+```{r irf2 3 f, echo=TRUE}
+irf_result3_2=irf(fit3,nhor = 48,ci=0.9,resvar = c(51,36,39,74,6,2,94,14,82))
+```
+
+ Remember that: 
+
+```{r variales tab, echo=FALSE}
+short_name = c('NA','INDPRO', 'CPIAUCSL', 'TB3MS', 'GS5', 'BOGAMBSL', 'M2SL', 
+               'PPIFGS', 'CUMFNS', 'PCECC96', 'IPDCONGD', 'IPNCONGD', 
+               'UNEMPLOY', 'CE16OV', 'COMPNFB', 'HOUST', 'DIIVIDEND',
+               'UMCSENT' )
+long_name = c('Fed Fund Rate', 'Indusrial Production', 'Consumer Price Index',
+              '3M Tresury Bills', '5 Year Tresury bills', 'Monetary Base', 'M2', 'Commodity Price Index', 'Capacity Utility Rate', 'Personal Consumption', 'Durable Consumption', 'Nondurable Consumption', 'Unemployment', 'Employment', 'Average Hourly Earnings', 'Housing Starts', 'Dividends', 'Cosnumer Expectations' )
+
+table_name = data.frame('Code'=short_name,'Variable'=long_name)
+library(knitr)
+kable(table_name)
+```
+  
+  
+  
+  
+## FAVAR estimation through Gibbs sampling with 5 factors
+
+In order to consider 5 factors, it works in the same way as before, the only difference is the argument K that must be set equal to 5.
+  
+```{r fit 5 f, echo=TRUE}
+fit5 <- FAVAR(Y = dataframe_data[,c("FEDFUNDS")],
+             X = dataframe_data[,1:120], slowcode = slowcode, fctmethod = 'BBE',
+             factorprior = list(b0 = 0, vb0 = NULL, c0 = 0.01, d0 = 0.01),
+             varprior = list(b0 = 0,vb0 = 10, nu0 = 0, s0 = 0),
+             nrep = 1500, nburn = 500, K = 5, plag = 13)
+```
+
+### Figure 5
+  This procedure is exactly as before, with no differences, but considering the FAVAR model fit5.
+```{r irf1 5 f, echo=TRUE}
+irf_result5_1=irf(fit5,nhor = 48,ci=0.9,resvar = c(121,33,120,112,93,84,104,56,1))
+```
+
+```{r irf2 5 f, echo=TRUE}
+irf_result_2=irf(fit5,nhor = 48,ci=0.9,resvar = c(51,36,39,74,6,2,94,14,82))
+```
+
+  As in the two step method FAVAR estimation, the results between an analysis considering 3 factors and another one considering 5 factors are pretty much the same. Obviously the first graph we see is referred to the varibale FEDFUNDS, in both cases. The reason fo which we read NA is given to the fact that formally this variable is outside of the dataframe of Xs, remember that the Federal Funds Rate is our preferred Y.
+  So, after having analysed that between 3 and 5 factors there are not substantial differences, as expected, considering the difference between two step method and the Gibbs Sampling implementation, we can also conclude that we find it remarkable that the two rather different methods, producing distinct factor estimates, give qualitatively similar results. On the other hand, the degree of uncertainty about the estimates implied by the two methods is quite different.
