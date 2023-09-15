@@ -1,0 +1,2367 @@
+---
+title: "Measuring the Effects of Monetary Policy: A Factor-Augmented Vector Autoregressive
+  (FAVAR) Approach - BBE 2005 - Replication"
+author: "Alessandro Pollastri"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+# Introduction
+
+## An introduction to the paper
+
+
+  The aim of this paper is to provide an alternative approach to VAR analyses of monetary policy, thus investigate whether is possible to condition VAR analysis on richer information set, without giving up the statistical advantages of restricting the analysis to a small number of series. Indeed, three main shortcomings of structural VARs are detected by the authors. Namely, the limited information problem, that is the fact that the central banks and the private sector have information not reflected in the VAR. Secondly, a construct validity issue: the constraint to arbitrary choose specific observable measures corresponding precisely to some theoretical constructs for the representation of general economic concepts (e.g. real GDP or industrial production may be too narrow for “economic activity”). Finally, the fact that impulse responses are observed only for included variables, which are generally a small subset of the ones policy-makers care about. These issues lead to a likely contaminated measurement of policy innovations. The solution proposed combines standard VAR analysis with factor analysis for large data sets: the factor-augment VAR (FAVAR) methodology. Indeed, FAVAR methodology allows to compute the responses of the variables of interest to specific structural shocks, identified in the VAR for the factors, summarizing the information from a large number of time series by a relatively small set of estimated factors. This model generally helps identification and reduces omitted variable problems.  
+
+
+##  A brief description of the VAR analyis
+
+  The Vector Auto Regressive, hereinafter VAR, model is used to extend the univariate Auto Regressive (AR) model to the multivariate case, in which the stochastic process generates the time series not just of one variable of interest, but of a vector of variables. The VAR model describes the dynamic evolution of a number of variables from their common history, thus, it allows to obtain mutually consistent predictions. 
+  A VAR(p) model for a k-dimensional vector $Y_t$ is given by 
+$$Y_t=\delta+\Theta_1 Y_{t-1}+...+\Theta_pY_{t-p}+\epsilon_{t}$$
+
+where each $\Theta_j$ is a k × k matrix and $\epsilon_{t}$ is a k-dimensional vector of white noise terms with covariance matrix $\Sigma$.
+The VAR model implies univariate ARMA models for each of its components. Considering more components simultaneously is an advantage in terms of accuracy in forecasting, since the information set is extended also to include the history of the other variables. On the other hand, the model may be more parsimonious and have fewer lags. Moreover, for the purpose of structural inference and policy analysis, the standard reduced form in the equation above may not perform very well, because it does not allow differentiating between correlation and causation (Stock and Watson, 2001). To remedy this, structural VARs can be developed to incorporate economic theory or institutional knowledge by imposing credible restrictions. 
+  
+  
+## The FAVAR approach
+ A formal framework of FAVAR analysis can be summarized as follows. For $Y_t$ being a M × 1 vector of observable variables assumed to drive the dynamics of the economy it may be the case that estimating a VAR, a structural VAR, or any other multivariate time series model leads to the loss of relevant additional information not fully captured by $Y_t$. Assuming to be able to summarize these latters in a K × 1 vector of unobservable factors, F, (for K “small” enough), we can write the transition equation to depict the joint dynamics of $F_t$, $Y_t$ as follows: 
+
+\begin{equation}
+\begin{bmatrix}
+F_t \\
+Y_t
+\end{bmatrix}=\Phi(L)\begin{bmatrix}
+F_{t-1} \\
+Y_{t-1}
+\end{bmatrix}+v_t
+\end{equation}
+
+Where $\Phi(L)$ is a lag polynomial of order d, and the error term is distributed with mean zero and covariance matrix $Q$. The above equation is a VAR in $(F_t', Y_t')$, and it reduces to a standard VAR in $Y_t$ if the terms in $\Phi(L)$ that relate $Y_t$ to $F_{t-1}$ are all zero. This shows that the FAVAR model nests standard VAR analysis, hence it allows for comparison with VAR results for assessment of the marginal contribution of $F_t$. Since the factors in $F_t$ are unobservable the above equation can not be estimated directly, but it is reasonable to infer about the factors from observations on a variety of “informational” time series, collected in the N×1  vector $X_t$ (for N “large”, greater than T, and K + M << N). The observation equation that relates $X_t$ to $F_t$ and $Y_t$ is as follows: 
+
+\begin{equation}
+X_t=\Lambda^fF_t+\Lambda^yY_t+e_t
+\end{equation}
+
+Where $\Lambda^f$ is an N x K matrix of factor loadings, $\Lambda^y$ is N × M and the N × 1 vector of disturbances have mean zero and are either normally distributed and uncorrelated or displaying a small cross-correlation, depending on whether estimation is performed by likelihood methods or principal components, respectively. 
+  To estimate (1)-(2) two approaches can be exploited: a two-step principal components approach and a single-step Bayesian likelihood approach. The principal component analysis (PCA) is a statistical technique for dimensionality reduction of large datasets, by linearly transforming each data point onto only the first few principal components to obtain lower-dimensional data and preserve as much of the data's variation as possible. Basically, the principal components are eigenvectors of the data's covariance matrix. In the first step, the first K + M principal components of $X_t$, $\hat C(F_t,Y_t)$ are used to estimate the space spanned by the factors. We determine and estimate the unobservable factors $F_t$ by determining the part of $\hat C(F_t,Y_t)$ not spanned by $Y_t$, since the principal components are an arbitrary linear combination of its arguments. In the second step the transition equation (1) is estimated by replacing $F_t$ with its estimate. We need to note that this latter is a generated regressors, hence, to account for uncertainty in factor estimation and obtain accurate confidence intervals on the impulse response functions, a bootstrap procedure will be implemented. The second way to proceed is to jointly estimate the transition and the observation equation by maximum likelihood, made it feasible for large dimension by likelihood-based Gibbs sampling techniques. The two methods will imply different biases and variances, depending on how well specified the model is. 
+This is the general structure that will lead our replication work. 
+  In the analysis of empirical macroeconomic models the FAVAR structure becomes particularly useful in exploiting information from a large number of indicators. It is infact reasonable to condition analyses of monetary policy on rich information sets, given that central banks monitor hundreds of economic variables in the process of monetray policy formulation. Both central banks and econometricians face informational constraints, meaning that they do not observe directly the entire information set. This is the reason why the usual VAR analysis might be inappropriate. Indeed, variables leading the analysis of monetary policy effects, such as potential output and cost-push shock are typically unobservable. Even inflation and output are hard to be observed firstly because macroeconomic data are subject to multiple rounds of revisions and never free of measurement error, secondly because they are theoretical concepts that do not necessarily align with specific data series leading to an issue in terms of construct validity (e.g. the difficulty of fully adjusting price indexes for quality improvement and the availabilty of various alternative measures suggets that the measurement of the “true” inflation rate suffers from a series of biases). Thus, the most realistic way to proceed is to treat all the cited variables as unobservable and to assume that the only observed one is the policy instrument, i.e. the nominal inflation rate.
+
+## Internal setting and expected outcomes
+
+  In the empirical implementation of the FAVAR model, the informational time series consists of a balanced panel of 120 monthly macroeconomic data spanning from January 1959 through August 2001. The series are initially transformed to induce stationarity.
+  We will follow the framework of the paper, thus comparing one preferred specification to alternative VAR and FAVAR ones. Our preferred specification assumes that the only observable variables are the policy instrument , entering the vector of observables, and a large set of macroeconomic indicators, which form the vector of informational time series. Hence, exploiting the strength of the FAVAR approach in accomodating alternative assumptions about observed variables and information sets, we will consider specifications that assume that inflation and output are observable.
+  We start by comparing the results from a standard three-variable VAR – based on industrial production, CPI, the federal funds rate – with two FAVAR specifications: our preferred one, as described above, and a three-variable VAR expanded with one unobservable factor. The latter FAVAR model nests the VAR, hence it allows to isolate the marginal contribution of additional information, constituting the vector of the unobservable factors. We will also consider an alternative number of factors, increasing it to five, to account for robustness of results, given that the economy might have other unmodeled dimensions. We expect that results obtained will not be altered qualitatively, to say that further increases in the number of factors do not improve results.
+  Afterwards, we will implement our estimates with the Gibbs sampling procedure. Thus, we are interested in assessing whether differences between results are due to differences in the information content of the factor estimates. We do so by setting loadings on Y to zero in the observation equation for the likelihood-based estimation and by not removing the direct dependence of the principal components on the federal funds rate in the two-step approach. We expect findings to point towards PC factors as the ones carrying more information.
+  Each specification identifies the monetary policy shock by ordering the federal funds rate last and treating its innovations as policy shocks. The underlying assumption is that unobserved factors do not respond to monetary policy innovations within the projection horizon (here, a month). Thus, information variables are divided into “slow-moving” and “fast-moving”, where the first ones are assumed not to respond contemporaneously to unanticipated changes in monetary policy, while the fast ones are allowed to do so. As an example, we can typically consider wages as slow-moving and asset prices as fast-moving.
+
+
+# The Dataset
+  
+  We faced some difficulties while creating our dataset, primaly because the series taken from DRI/McGraw Hill Basic Economics Database used in the paper are not available to us. Various dataset that fits the paper well are easy to be found online, but we decided to create our own dataset exploiting the quantmod package to download time series from FRED. We manually transformed our variables to fit the format followed by the paper: namely, 1—no transformation; 2—first difference; 4—logarithm; 5—first difference of logarithm. Since our dataset will not be precisely the same as the one the paper relies on, we expect to have some differences in our impulse response variables. Further comments will be added in the comment of each relevant impulse response variable.  
+```{r packages required, include=FALSE}
+rm(list=ls())
+library(quantmod)
+library(readxl)
+library(boot)
+library(tsDyn)
+library(repr)
+library(readxl)
+library(knitr)
+library(FAVAR)
+library(vars)
+```
+  After having loaded the required packages to replicate the paper, not shown in the pdf version, but in the Markdown file, we are now ready to import the required series from the FRED website, through the quantmod package.
+  We present the commands for importing one variable, for example Average Hourly Earnings. The commands for importing the other variables are the same, and won't be presented on the pdf version. It is possible to find the entire code on the markdown file provided.
+  
+```{r import dataset average hourly earningg, echo=TRUE}
+getSymbols('COMPNFB', src='FRED')
+COMPNFB = diff(log(COMPNFB))
+COMPNFB1 = window(COMPNFB,start='1959-04-01',end = '2004-07-01')
+```
+
+```{r import dataset, echo=FALSE}
+
+getSymbols('CUMFNS',src='FRED')  ##1 # CAPACITY UTILIZATION
+CUMFNS = to.quarterly(CUMFNS, OHLC = FALSE, name = NULL)
+CUMFNS = diff(log(CUMFNS))
+CUMFNS1 = window(CUMFNS,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('UMCSENT',src='FRED') #5 # CONSUMER EXPECTATIONS
+UMCSENT = to.quarterly(UMCSENT, OHLC = FALSE, name = NULL)
+UMCSENT = diff(log(UMCSENT))
+UMCSENT1 = window(UMCSENT,start ='1959 Q1',end = '2004 Q2')
+
+getSymbols('GDPDEF', src='FRED') #5
+GDPDEF = to.quarterly(GDPDEF, OHLC = FALSE, name = NULL)
+GDPDEF = diff(log(GDPDEF))
+GDPDEF1 = window(GDPDEF,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('AWHMAN',src='FRED')#2
+AWHMAN = to.quarterly(AWHMAN, OHLC = FALSE, name = NULL)
+AWHMAN = diff(AWHMAN)
+AWHMAN1 = window(AWHMAN,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('AWOTMAN',src='FRED')#2
+AWOTMAN = to.quarterly(AWOTMAN, OHLC = FALSE, name = NULL)
+AWOTMAN=diff(AWOTMAN)
+AWOTMAN1 = window(AWOTMAN,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('BOGNONBR',src='FRED')#5
+BOGNONBR = to.quarterly(BOGNONBR, OHLC = FALSE, name = NULL)
+BOGNONBR=diff(log(BOGNONBR))
+BOGNONBR1 = window(BOGNONBR,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('CE16OV',src='FRED') #5
+CE16OV = to.quarterly(CE16OV, OHLC = FALSE, name = NULL)
+CE16OV=diff(log(CE16OV))
+CE16OV1 = window(CE16OV,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('CIVPART',src='FRED') #2
+CIVPART = to.quarterly(CIVPART, OHLC = FALSE, name = NULL)
+CIVPART=diff(CIVPART)
+CIVPART1 = window(CIVPART,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('CLF16OV',src='FRED') #5
+CLF16OV = to.quarterly(CLF16OV, OHLC = FALSE, name = NULL)
+CLF16OV=diff(log(CLF16OV))
+CLF16OV1 = window(CLF16OV,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('CNCF',src='FRED') #DEF #5
+CNCF = diff(log(CNCF)) #DEF
+CNCF1 = window(CNCF,start = '1959-04-01',end = '2004-07-01') #DEF
+CNCF1 = CNCF1 - GDPDEF1
+
+getSymbols('COMPNFB',src='FRED') #5
+COMPNFB = diff(log(COMPNFB))
+COMPNFB1 = window(COMPNFB,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('COMPRNFB',src='FRED') #5
+COMPRNFB = diff(log(COMPRNFB))
+COMPRNFB1 = window(COMPRNFB,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('CP',src='FRED') #DEF #5
+CP = diff(log(CP))
+CP1 = window(CP,start = '1959-04-01',end = '2004-07-01') #DEF
+CP1 = CP1 - GDPDEF1
+
+getSymbols('DEMDEPSL',src='FRED') #5
+DEMDEPSL = to.quarterly(DEMDEPSL, OHLC = FALSE, name = NULL)
+DEMDEPSL = diff(log(DEMDEPSL))
+DEMDEPSL1 = window(DEMDEPSL,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('DIVIDEND',src='FRED') #DEF #5
+DIVIDEND = diff(log(DIVIDEND)) #DEF
+DIVIDEND1 = window(DIVIDEND,start = '1959-04-01',end = '2004-07-01')
+DIVIDEND1 = DIVIDEND1 - GDPDEF1
+
+getSymbols('DPIC96',src='FRED') #5
+DPIC96 = diff(log(DPIC96))
+DPIC961 = window(DPIC96,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('EXCRESNS',src='FRED') #2
+EXCRESNS = to.quarterly(EXCRESNS, OHLC = FALSE, name = NULL)
+EXCRESNS = diff(EXCRESNS)
+EXCRESNS1 = window(EXCRESNS,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('EXPGSC1',src='FRED') #5
+EXPGSC1 = diff(log(EXPGSC1))
+EXPGSC11 = window(EXPGSC1,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('FGEXPND',src='FRED') #DEF #5
+FGEXPND = diff(log(FGEXPND)) #DEF
+FGEXPND1 = window(FGEXPND,start = '1959-04-01',end = '2004-07-01') #DEF
+FGEXPND1 = FGEXPND1 - GDPDEF1
+
+getSymbols('FGRECPT',src='FRED') #DEF #5
+FGRECPT = diff(log(FGRECPT)) #DEF
+FGRECPT1 = window(FGRECPT,start = '1959-04-01',end = '2004-07-01') #DEF
+FGRECPT1 = FGRECPT1 - GDPDEF1
+
+getSymbols('FINSLC1',src='FRED') #5
+FINSLC1 = diff(log(FINSLC1),differences = 2)
+FINSLC11 = window(FINSLC1,start ='1959-04-01',end = '2004-07-01')
+
+getSymbols('GCEC1',src='FRED') #5
+GCEC1 = diff(log(GCEC1))
+GCEC11 = window(GCEC1,start = '1959-04-01',end = '2004-07-01') 
+
+getSymbols('GDPCTPI',src='FRED') #5
+GDPCTPI = diff(log(GDPCTPI))
+GDPCTPI1 = window(GDPCTPI,start = '1959-04-01',end = '2004-07-01') 
+
+getSymbols('GEXPND',src='FRED') #DEF #5 
+GEXPND = diff(log(GEXPND)) #DEF
+GEXPND1 = window(GEXPND,start = '1959-04-01',end = '2004-07-01') #DEF
+GEXPND1 = GEXPND1 - GDPDEF1
+
+getSymbols('GNPC96',src='FRED') #5
+GNPC96 = diff(log(GNPC96)) 
+GNPC961 = window(GNPC96,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('GNPCTPI',src='FRED') #5
+GNPCTPI = diff(log(GNPCTPI))
+GNPCTPI1 = window(GNPCTPI,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('GNPDEF',src='FRED') #5 
+GNPDEF = diff(log(GNPDEF))
+GNPDEF1 = window(GNPDEF,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('GPDIC1',src='FRED') #5 
+GPDIC1 = diff(log(GPDIC1))
+GPDIC11 = window(GPDIC1,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('GPSAVE',src='FRED') #DEF #5
+GPSAVE = diff(log(GPSAVE)) #DEF
+GPSAVE1 = window(GPSAVE,start = '1959-04-01',end = '2004-07-01')
+GPSAVE1 = GPSAVE1 - GDPDEF1
+
+getSymbols('GRECPT',src='FRED') #DEF #5
+GRECPT = diff(log(GRECPT)) #DEF
+GRECPT1 = window(GRECPT,start = '1959-04-01',end = '2004-07-01')#DEF
+GRECPT1 = GRECPT1 - GDPDEF1
+
+getSymbols('HOANBS',src='FRED') #5
+HOANBS = diff(log(HOANBS))
+HOANBS1 = window(HOANBS,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('IMPGSC1',src='FRED') #5
+IMPGSC1 = diff(log(IMPGSC1))
+IMPGSC11 = window(IMPGSC1,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('INDPRO',src='FRED')  ##5 industr
+INDPRO = to.quarterly(INDPRO, OHLC = FALSE, name = NULL)
+INDPRO=diff(log(INDPRO))
+INDPRO1=window(INDPRO,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('INVEST',src='FRED') ##5  NOOOOOO
+INVEST= to.quarterly(INVEST, OHLC = FALSE, name = NULL)
+INVEST=diff(log(INVEST))
+INVEST1=window(INVEST,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('IPBUSEQ',src='FRED')   ##5
+IPBUSEQ = to.quarterly(IPBUSEQ, OHLC = FALSE, name = NULL)
+IPBUSEQ=diff(log(IPBUSEQ))
+IPBUSEQ1=window(IPBUSEQ,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('IPCONGD',src='FRED')  ##5
+IPCONGD = to.quarterly(IPCONGD, OHLC = FALSE, name = NULL)
+IPCONGD=diff(log(IPCONGD))
+IPCONGD1=window(IPCONGD,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('IPDCONGD',src='FRED')  ##5
+IPDCONGD = to.quarterly(IPDCONGD, OHLC = FALSE, name = NULL)
+IPDCONGD=diff(log(IPDCONGD))
+IPDCONGD1=window(IPDCONGD,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('IPFINAL',src='FRED')  ##5
+IPFINAL = to.quarterly(IPFINAL, OHLC = FALSE, name = NULL)
+IPFINAL=diff(log(IPFINAL))
+IPFINAL1=window(IPFINAL,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('IPMAT',src='FRED')  ##5
+IPMAT = to.quarterly(IPMAT, OHLC = FALSE, name = NULL)
+IPMAT=diff(log(IPMAT))
+IPMAT1=window(IPMAT,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('IPNCONGD',src='FRED')  ##5
+IPNCONGD = to.quarterly(IPNCONGD, OHLC = FALSE, name = NULL)
+IPNCONGD=diff(log(IPNCONGD))
+IPNCONGD1=window(IPNCONGD,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('LGTDCBSL',src='FRED')  ##5
+LGTDCBSL = to.quarterly(LGTDCBSL, OHLC = FALSE, name = NULL)
+LGTDCBSL=diff(log(LGTDCBSL))
+LGTDCBSL1=window(LGTDCBSL,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('LNS14000001',src='FRED')  ##1
+LNS14000001 = to.quarterly(LNS14000001, OHLC = FALSE, name = NULL)
+LNS140000011=window(LNS14000001,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('LNS14000060',src='FRED')  ##1
+LNS14000060 = to.quarterly(LNS14000060, OHLC = FALSE, name = NULL)
+LNS140000601=window(LNS14000060,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('LTDSL',src='FRED')   ##5
+LTDSL = to.quarterly(LTDSL, OHLC = FALSE, name = NULL)
+LTDSL=diff(log(LTDSL))
+LTDSL1=window(LTDSL,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('NFCPATAX',src='FRED')  ##5 def
+NFCPATAX = diff(log(NFCPATAX))
+NFCPATAX1 = window(NFCPATAX,start = '1959-04-01',end = '2004-07-01')
+NFCPATAX1 =NFCPATAX1 - GDPDEF1
+
+getSymbols('NFORBRES',src='FRED')  ##2
+NFORBRES = to.quarterly(NFORBRES, OHLC = FALSE, name = NULL)
+NFORBRES = diff(NFORBRES)
+NFORBRES1 = window(NFORBRES,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('NICUR',src='FRED')  ##5 def?
+NICUR=diff(log(NICUR))
+NICUR1=window(NICUR,start = '1959-04-01',end = '2004-07-01')
+NICUR1 = NICUR1 - GDPDEF1
+
+getSymbols('OILPRICE',src='FRED')  ##5
+OILPRICE = to.quarterly(OILPRICE, OHLC = FALSE, name = NULL)
+OILPRICE=diff(log(OILPRICE))
+OILPRICE1=window(OILPRICE,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('OPHNFB',src='FRED')  ##5
+OPHNFB=diff(log(OPHNFB))
+OPHNFB1=window(OPHNFB,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('OTHSEC',src='FRED')  ##5
+OTHSEC = to.quarterly(OTHSEC, OHLC = FALSE, name = NULL)
+OTHSEC=diff(log(OTHSEC))
+OTHSEC1=window(OTHSEC,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('OUTNFB',src='FRED')  ##5
+OUTNFB=diff(log(OUTNFB))
+OUTNFB1=window(OUTNFB,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('PCECC96',src='FRED')  ##5
+PCECC96=diff(log(PCECC96))
+PCECC961=window(PCECC96,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('PPICPE',src='FRED')  ##5
+PPICPE = to.quarterly(PPICPE, OHLC = FALSE, name = NULL)
+PPICPE=diff(log(PPICPE))
+PPICPE1=window(PPICPE,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('PPICRM',src='FRED')  ##5
+PPICRM = to.quarterly(PPICRM, OHLC = FALSE, name = NULL)
+PPICRM=diff(log(PPICRM))
+PPICRM1=window(PPICRM,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('PPIFCF',src='FRED')  ##5
+PPIFCF = to.quarterly(PPIFCF, OHLC = FALSE, name = NULL)
+PPIFCF=diff(log(PPIFCF))
+PPIFCF1=window(PPIFCF,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('PPIFCG',src='FRED')  ##5
+PPIFCG = to.quarterly(PPIFCG, OHLC = FALSE, name = NULL)
+PPIFCG=diff(log(PPIFCG))
+PPIFCG1=window(PPIFCG,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('PPIFGS',src='FRED')  ##5
+PPIFGS = to.quarterly(PPIFGS, OHLC = FALSE, name = NULL)
+PPIFGS=diff(log(PPIFGS))
+PPIFGS1=window(PPIFGS,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('PPIITM',src='FRED')  ##5
+PPIITM = to.quarterly(PPIITM, OHLC = FALSE, name = NULL)
+PPIITM=diff(log(PPIITM),differences = 2)
+PPIITM1=window(PPIITM,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('REALLN',src='FRED')  ##5
+REALLN = to.quarterly(REALLN, OHLC = FALSE, name = NULL)
+REALLN=diff(log(REALLN))
+REALLN1=window(REALLN,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('REQRESNS',src='FRED')  ##5
+REQRESNS = to.quarterly(REQRESNS, OHLC = FALSE, name = NULL)
+REQRESNS=diff(log(REQRESNS))
+REQRESNS1=window(REQRESNS,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('RESBALNS',src='FRED')  ##5
+RESBALNS = to.quarterly(RESBALNS, OHLC = FALSE, name = NULL)
+RESBALNS=diff(log(RESBALNS))
+RESBALNS1=window(RESBALNS,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('SAVINGSL',src='FRED')  ##5
+SAVINGSL = to.quarterly(SAVINGSL, OHLC = FALSE, name = NULL)
+SAVINGSL=diff(log(SAVINGSL))
+SAVINGSL1=window(SAVINGSL,start = '1959 Q1',end = '2004 Q2')
+
+getSymbols('SRVPRD',src='FRED') #All Employees: Service-Providing Industries 
+##5(differenze prime dei log) #monthly 
+SRVPRD = to.quarterly(SRVPRD, OHLC = FALSE, name = NULL)
+SRVPRD =diff(log(SRVPRD))
+SRVPRD1 = window(SRVPRD, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('SVSTCBSL',src='FRED') #Small Time Deposits at Commercial Banks
+##5 #monthly 
+SVSTCBSL = to.quarterly(SVSTCBSL, OHLC = FALSE, name = NULL)
+SVSTCBSL =diff(log(SVSTCBSL))
+SVSTCBSL1 = window(SVSTCBSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('STDCBSL',src='FRED') #Small Time Deposits - Total
+##5 #monthly
+STDCBSL = to.quarterly(STDCBSL, OHLC = FALSE, name = NULL)
+STDCBSL = diff(log(STDCBSL))
+STDCBSL1 = window(STDCBSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('STDSL',src='FRED')  #Small Time Deposits - Total 
+##5 #monthly
+STDSL = to.quarterly(STDSL, OHLC = FALSE, name = NULL)
+STDSL = diff(log(STDSL))
+STDSL1 = window(STDSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('SVGCBSL',src='FRED') #Savings Deposits at Commercial Banks
+##5 #monthly
+SVGCBSL = to.quarterly(SVGCBSL, OHLC = FALSE, name = NULL)
+SVGCBSL = diff(log(SVGCBSL))
+SVGCBSL1 = window(SVGCBSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('SVSTCBSL',src='FRED') #Savings and Small Time Deposits at Commercial Banks
+#5 #monthly 
+SVSTCBSL = to.quarterly(SVSTCBSL, OHLC = FALSE, name = NULL)
+SVSTCBSL = diff(log(SVSTCBSL))
+SVSTCBSL1 = window(SVSTCBSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('SVSTSL',src='FRED') # Savings and Small Time Deposits - Total
+##5 #monthly
+SVSTSL = to.quarterly(SVSTSL, OHLC = FALSE, name = NULL)
+SVSTSL = diff(log(SVSTSL))
+SVSTSL1 = window(SVSTSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TCDSL',src='FRED') #Total Checkable Deposits
+##5 #monthly
+TCDSL = to.quarterly(TCDSL, OHLC = FALSE, name = NULL)
+TCDSL = diff(log(TCDSL))
+TCDSL1 = window(TCDSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TOTALSL',src='FRED') #Total Consumer Credit Outstanding
+##5 #monthly
+TOTALSL = to.quarterly(TOTALSL, OHLC = FALSE, name = NULL)
+TOTALSL = diff(log(TOTALSL))
+TOTALSL1 = window(TOTALSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TOTTDP',src='FRED') 
+#Total Time and Savings Deposits at All Depository Institutions
+##5 #monthly
+TOTTDP = to.quarterly(TOTTDP, OHLC = FALSE, name = NULL)
+TOTTDP = diff(log(TOTTDP))
+TOTTDP1 = window(TOTTDP, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('UEMPMEAN',src='FRED') #Average (Mean) Duration of Unemployment
+##2(differenze prime) #monthly
+UEMPMEAN = to.quarterly(UEMPMEAN, OHLC = FALSE, name = NULL)
+UEMPMEAN = diff(UEMPMEAN)
+UEMPMEAN1 = window(UEMPMEAN, start = '1959 Q1', end = '2004 Q2')
+##N.A. NELLA PRIMA RIGA !
+
+getSymbols('ULCNFB',src='FRED') #Nonfarm Business Sector: Unit Labor Cost 
+##5 #quarterly
+ULCNFB = diff(log(ULCNFB))
+ULCNFB1 = window(ULCNFB, start = '1959-04-01', end = '2004-07-01')
+
+getSymbols('UNEMPLOY',src='FRED')  # Unemployed
+##5 #monthly
+UNEMPLOY = to.quarterly(UNEMPLOY, OHLC = FALSE, name = NULL)
+UNEMPLOY=diff(log(UNEMPLOY))
+UNEMPLOY1 = window(UNEMPLOY, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('UNLPNBS',src='FRED') # Nonfarm Business Sector: Unit Nonlabor Payments
+##5 #quarterly 
+UNLPNBS=diff(log(UNLPNBS))
+UNLPNBS1 = window(UNLPNBS, start = '1959-04-01', end = '2004-07-01')
+
+getSymbols('UNRATE',src='FRED') #Civilian Unemployment Rate
+##1(no trasformata) #monthly
+UNRATE = to.quarterly(UNRATE, OHLC = FALSE, name = NULL)
+UNRATE1 = window(UNRATE, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('USGOOD',src='FRED') #All Employees: Goods-Producing Industries
+##5 #monthly
+USGOOD = to.quarterly(USGOOD, OHLC = FALSE, name = NULL)
+USGOOD = diff(log(USGOOD))
+USGOOD1 = window(USGOOD, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('USGSEC',src='FRED') #U.S. Government Securities at All Commercial Banks
+##5 #monthly
+USGSEC = to.quarterly(USGSEC, OHLC = FALSE, name = NULL)
+USGSEC = diff(log(USGSEC))
+USGSEC1 = window(USGSEC, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('USPRIV',src='FRED') # All Employees: Total Private Industries
+##5 #monthly 
+USPRIV = to.quarterly(USPRIV, OHLC = FALSE, name = NULL)
+USPRIV = diff(log(USPRIV))
+USPRIV1 = window(USPRIV, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('WASCUR',src='FRED') 
+#Compensation of Employees: Wages & Salary Accruals (def)
+##DEF ##5
+WASCUR = diff(log(WASCUR))
+WASCUR1 = window(WASCUR, start = '1959-04-01', end = '2004-07-01')
+WASCUR1 = WASCUR1 - GDPDEF1
+
+### From here fast variables ###
+
+getSymbols('AAA',src='FRED') # Moody’s Seasoned Aaa Corporate Bond Yield
+##1 #monthly
+AAA = to.quarterly(AAA, OHLC = FALSE, name = NULL)
+AAA1 = window(AAA, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('BAA',src='FRED') #Moody’s Seasoned Baa Corporate Bond Yield 
+##1 #monthly
+BAA = to.quarterly(BAA, OHLC = FALSE, name = NULL)
+BAA1 = window(BAA, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('BOGAMBSL',src='FRED') 
+#Board of Governors Monetary Base, Adjusted for Changes in Reserve Requirements  
+##5 #monthly
+BOGAMBSL = to.quarterly(BOGAMBSL, OHLC = FALSE, name = NULL)
+BOGAMBSL = diff(log(BOGAMBSL))
+BOGAMBSL1 = window(BOGAMBSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('BOGUMBNS',src='FRED') 
+#Board of Governors Monetary Base, Not Adjusted for Changes in Reserve Requirements
+##5 #monthly 
+BOGUMBNS = to.quarterly(BOGUMBNS, OHLC = FALSE, name = NULL)
+BOGUMBNS = diff(log(BOGUMBNS))
+BOGUMBNS1 = window(BOGUMBNS, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('BUSLOANS',src='FRED') 
+#Commercial and Industrial Loans at All Commercial Banks
+##5 #monthly 
+BUSLOANS = to.quarterly(BUSLOANS, OHLC = FALSE, name = NULL)
+BUSLOANS = diff(log(BUSLOANS))
+BUSLOANS1 = window(BUSLOANS, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('CONSUMER',src='FRED') 
+#Consumer (Individual) Loans at All Commercial Banks
+##5 #monthly 
+CONSUMER = to.quarterly(CONSUMER, OHLC = FALSE, name = NULL)
+CONSUMER = diff(log(CONSUMER))
+CONSUMER1 = window(CONSUMER, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('CURRDD',src='FRED') #Currency Component of M1 Plus Demand Deposits
+##5 #monthly 
+CURRDD = to.quarterly(CURRDD, OHLC = FALSE, name = NULL)
+CURRDD = diff(log(CURRDD))
+CURRDD1 = window(CURRDD, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('CURRSL',src='FRED') #Currency Component of M1
+##5 #monthly 
+CURRSL = to.quarterly(CURRSL, OHLC = FALSE, name = NULL)
+CURRSL = diff(log(CURRSL))
+CURRSL1 = window(CURRSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('GS1',src='FRED') # 1-Year Treasury Constant Maturity Rate 
+##1 #monthly 
+GS1 = to.quarterly(GS1, OHLC = FALSE, name = NULL)
+GS11 = window(GS1, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('GS10',src='FRED') #10-Year Treasury Constant Maturity Rate
+##1 #monthly 
+GS10 = to.quarterly(GS10, OHLC = FALSE, name = NULL)
+GS101 = window(GS10, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('GS3',src='FRED') #3-Year Treasury Constant Maturity Rate 
+##1
+GS3 = to.quarterly(GS3, OHLC = FALSE, name = NULL)
+GS31 = window(GS3, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('GS5', src='FRED') #91 1,notransformation
+GS5 = to.quarterly(GS5, OHLC = FALSE, name = NULL)
+GS51 = window(GS5, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('HOUST', src='FRED') #92, 4,log
+HOUST = to.quarterly(HOUST, OHLC = FALSE, name = NULL)
+HOUST=(log(HOUST))
+HOUST1 = window(HOUST, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('HOUST1F', src='FRED') #93, 4, log
+HOUST1F = to.quarterly(HOUST1F, OHLC = FALSE, name = NULL)
+HOUST1F=(log(HOUST1F))
+HOUST1F1 = window(HOUST1F, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('HOUSTMW', src='FRED') #94, 4,log
+HOUSTMW = to.quarterly(HOUSTMW, OHLC = FALSE, name = NULL)
+HOUSTMW = (log(HOUSTMW))
+HOUSTMW1 = window(HOUSTMW, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('HOUSTNE', src='FRED') #95, 4,log
+HOUSTNE= to.quarterly(HOUSTNE, OHLC = FALSE, name = NULL)
+HOUSTNE=(log(HOUSTNE))
+HOUSTNE1 = window(HOUSTNE, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('HOUSTS', src='FRED') #96, 4, log
+HOUSTS= to.quarterly(HOUSTS, OHLC = FALSE, name = NULL)
+HOUSTS=(log(HOUSTS))
+HOUSTS1 = window(HOUSTS, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('HOUSTW', src='FRED') #97, 4, log
+HOUSTW = to.quarterly(HOUSTW, OHLC = FALSE, name = NULL)
+HOUSTW =(log(HOUSTW))
+HOUSTW1 = window(HOUSTW, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('LOANINV', src='FRED') #98, 5, difference
+LOANINV = to.quarterly(LOANINV, OHLC = FALSE, name = NULL)
+LOANINV = diff(log(LOANINV))
+LOANINV1 = window(LOANINV, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('LOANS', src='FRED') #99 5
+LOANS= to.quarterly(LOANS, OHLC = FALSE, name = NULL)
+LOANS=diff(log(LOANS))
+LOANS1 = window(LOANS, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('M1SL', src='FRED') #100 5
+M1SL= to.quarterly(M1SL, OHLC = FALSE, name = NULL)
+M1SL=diff(log(M1SL))
+M1SL1 = window(M1SL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('M2MSL', src='FRED') #101 5
+M2MSL = to.quarterly(M2MSL, OHLC = FALSE, name = NULL)
+M2MSL = diff(log(M2MSL))
+M2MSL1 = window(M2MSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('M2SL', src='FRED') #102 5
+M2SL= to.quarterly(M2SL, OHLC = FALSE, name = NULL)
+M2SL=diff(log(M2SL))
+M2SL1 = window(M2SL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('MPRIME', src='FRED') #103 1
+MPRIME= to.quarterly(MPRIME, OHLC = FALSE, name = NULL)
+MPRIME1 = window(MPRIME, start = '1959 Q1', end = '2004 Q2')
+
+
+getSymbols('NONREVSL', src='FRED') #104 5
+NONREVSL= to.quarterly(NONREVSL, OHLC = FALSE, name = NULL)
+NONREVSL=diff(log(NONREVSL))
+NONREVSL1 = window(NONREVSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('NREVNCB', src='FRED') #105 5
+NREVNCB= to.quarterly(NREVNCB, OHLC = FALSE, name = NULL)
+NREVNCB=diff(log(NREVNCB))
+NREVNCB1 = window(NREVNCB, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('NREVNCU', src='FRED') #106 5
+NREVNCU= to.quarterly(NREVNCU, OHLC = FALSE, name = NULL)
+NREVNCU= diff(log(NREVNCU))
+NREVNCU1 = window(NREVNCU, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('NREVNFC', src='FRED') #107 5
+NREVNFC= to.quarterly(NREVNFC, OHLC = FALSE, name = NULL)
+NREVNFC=diff(log(NREVNFC))
+NREVNFC1 = window(NREVNFC, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('NREVNSAV', src='FRED') #108 5
+NREVNSAV= to.quarterly(NREVNSAV, OHLC = FALSE, name = NULL)
+NREVNSAV=diff(log(NREVNSAV))
+NREVNSAV1 = window(NREVNSAV, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('PERMITNSA', src='FRED') #109 4
+PERMITNSA= to.quarterly(PERMITNSA, OHLC = FALSE, name = NULL)
+PERMITNSA=(log(PERMITNSA))
+PERMITNSA1 = window(PERMITNSA, start = '1959 Q1', end = '2004 Q2')
+
+
+getSymbols('SP500', src='FRED') #110 
+
+
+getSymbols('TB3MS', src='FRED') #111 1
+TB3MS= to.quarterly(TB3MS, OHLC = FALSE, name = NULL)
+TB3MS1 = window(TB3MS, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TB6MS', src='FRED') #112 1
+TB6MS= to.quarterly(TB6MS, OHLC = FALSE, name = NULL)
+TB6MS1 = window(TB6MS, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TOTALCB', src='FRED') #113 5
+TOTALCB= to.quarterly(TOTALCB, OHLC = FALSE, name = NULL)
+TOTALCB=diff(log(TOTALCB))
+TOTALCB1 = window(TOTALCB, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TOTALFC', src='FRED') #114 5
+TOTALFC= to.quarterly(TOTALFC, OHLC = FALSE, name = NULL)
+TOTALFC=diff(log(TOTALFC))
+TOTALFC1 = window(TOTALFC, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TOTALNFC', src='FRED') #115 5
+TOTALNFC= to.quarterly(TOTALNFC, OHLC = FALSE, name = NULL)
+TOTALNFC=diff(log(TOTALNFC))
+TOTALNFC1 = window(TOTALNFC, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TOTALSAV', src='FRED') #116 5
+TOTALSAV= to.quarterly(TOTALSAV, OHLC = FALSE, name = NULL)
+TOTALSAV=diff(log(TOTALSAV))
+TOTALSAV1 = window(TOTALSAV, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('TOTALTCU', src='FRED') #117 5
+TOTALTCU= to.quarterly(TOTALTCU, OHLC = FALSE, name = NULL)
+TOTALTCU=diff(log(TOTALTCU))
+TOTALTCU1 = window(TOTALTCU, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('GDP', src='FRED') #118 5
+GDP=diff(log(GDP))
+GDP1 = window(GDP,start = '1959-04-01',end = '2004-07-01')
+
+getSymbols('CPIAUCSL', src='FRED') #118 5
+CPIAUCSL= to.quarterly(CPIAUCSL, OHLC = FALSE, name = NULL)
+CPIAUCSL=diff(log(CPIAUCSL))
+CPIAUCSL1 = window(CPIAUCSL, start = '1959 Q1', end = '2004 Q2')
+
+getSymbols('FEDFUNDS', src='FRED') #119 5
+FEDFUNDS= to.quarterly(FEDFUNDS, OHLC = FALSE, name = NULL)
+FEDFUNDS1=diff(log(FEDFUNDS))
+FEDFUNDS11 = window(FEDFUNDS, start = '1959 Q1', end = '2004 Q2')
+```
+  
+  And now we can build our Dataset:  
+We decided to import quarterly data, or to transform monthly data into quarterly data, since not for all the variable imported was feasible to import monthly data. All the variables are transformed according to the transformation required by the paper. Then, exactly as did in the paper, we consider data from 1959 up to 2001. Since it was not possible to consider the first quarter of 1959, because of the presence of some NAs, we decided to take into account all data from the 2nd quarter of 1959, to the third quarter of 2001. 
+  
+```{r creation dataset, echo=TRUE}
+data=cbind(CUMFNS1,COMPNFB1,AWHMAN1,AWOTMAN1,BOGNONBR1,CE16OV1,CIVPART1,
+           CLF16OV1,CNCF1,COMPNFB1,
+           COMPRNFB1,CP1,DEMDEPSL1,DIVIDEND1,DPIC961,EXCRESNS1,EXPGSC11,
+           FGEXPND1,FGRECPT1,FINSLC11,GCEC11,GDPCTPI1,GDPDEF1,GEXPND1,GNPC961,
+           GNPCTPI1,GNPDEF1,GPDIC11,GPSAVE1,GRECPT1,HOANBS1,IMPGSC11,INDPRO1,
+           IPBUSEQ1,IPCONGD1,IPDCONGD1,IPFINAL1,IPMAT1,IPNCONGD1,LGTDCBSL1,
+           LNS140000011,LNS140000601,LTDSL1,NFCPATAX1,NFORBRES1,NICUR1,OILPRICE1,
+           OPHNFB1,
+           OTHSEC1,OUTNFB1,PCECC961,PPICPE1,PPICRM1,PPIFCF1,PPIFCG1,PPIFGS1,
+           PPIITM1,REALLN1,REQRESNS1,RESBALNS1,SAVINGSL1,SRVPRD1,STDCBSL1,
+           STDSL1,SVGCBSL1,SVSTCBSL1,SVSTSL1,TCDSL1,INVEST1,
+           TOTALSL1,TOTTDP1,UEMPMEAN1,ULCNFB1,UNEMPLOY1,UNLPNBS1,UNRATE1,
+           USGOOD1,USGSEC1,USPRIV1,WASCUR1,AAA1,UMCSENT1,BAA1,BOGAMBSL1,
+           BOGUMBNS1,BUSLOANS1,
+           CONSUMER1,CURRDD1,CURRSL1,GS11,GS101,GS31,GS51,HOUST1,HOUST1F1,
+           HOUSTMW1,HOUSTNE1,HOUSTS1,HOUSTW1,LOANINV1,LOANS1,M1SL1,M2MSL1,M2SL1,
+           MPRIME1,NONREVSL1,NREVNCB1,NREVNCU1,NREVNFC1,NREVNSAV1,PERMITNSA1,
+           TB3MS1,TB6MS1,TOTALCB1,TOTALFC1,TOTALNFC1,TOTALSAV1,TOTALTCU1,GDP1,
+           CPIAUCSL1,FEDFUNDS11)
+
+
+data=data[2:171,]
+head(data)
+```
+
+  Within the different variables we have imported, the slow variables are the following:
+  Remember that, as discussed in the paper slow moving variables, such as wages or spending, are assumed not to respond contemporaneously to unanticipated changes in monetary policy. In contrast, fast-moving variables, asset prices, are allowed to respond contemporaneously to policy shocks.  
+  
+```{r slow variables, echo=TRUE}
+slowvariables=c('CUMFNS','COMPNFB',"AWHMAN","AWOTMAN","BOGNONBR","CE16OV",
+                "CIVPART","CLF16OV","CNCF","COMPNFB","COMPRNFB",
+                "CP","DEMDEPSL","DIVIDEND","DPIC96","EXCRESNS",
+                "EXPGSC1","FGEXPND","FGRECPT","FINSLC1",
+                "GCEC1","GDPCTPI","GDPDEF","GEXPND","GNPC96","GNPCTPI",
+                "GNPDEF","GPDIC1","GPSAVE","GRECPT",
+                "HOANBS","IMPGSC1","INDPRO","IPBUSEQ","IPCONGD","IPDCONGD",
+                "IPFINAL","IPMAT","IPNCONGD","LGTDCBSL","LNS14000001",
+                "LNS14000060", "LTDSL","NFCPATAX","NFORBRES",
+                "OPHNFB","OTHSEC","OUTNFB","PCECC96","PPICPE","PPICRM","PPIFCF",
+                "PPIFCG","PPIFGS","PPIITM","REALLN","REQRESNS","RESBALNS",
+                "SAVINGSL","SRVPRD","STDCBSL","STDSL","SVGCBSL","SRVPRD",
+                "STDCBSL","STDSL","SVGCBSL","SVSTCBSL","SVSTSL","TCDSL",
+                "TOTALSL","TOTTDP","UEMPMEAN","ULCNFB","UNEMPLOY","UNLPNBS",
+                "UNRATE","USGOOD","USGSEC","USPRIV", "WASCUR",'GDP','CPIAUCSL')
+```
+
+
+  Once we have obtained the dataset of the desired period of time, before we are able to proceed, it is necessary, as explained in the paper, to scale the dataset, both the entire dataset and the one only containing the slow variables.
+```{r scale dataset, echo=TRUE}
+data_scaled = scale(data, center = TRUE, scale = TRUE)
+data_scaled=data_scaled[complete.cases(data_scaled),]
+data_slow_scaled = data_scaled[,slowvariables]
+```
+
+
+# Two-step FAVAR estimation
+
+## FAVAR estimation with 3 factors
+  
+We are now ready to perform the FAVAR estimation.
+  As explained before, the two step FAVAR estimation is based on the Principal Component Alysis.
+ Principal Component Analysis (PCA) is a widely used statistical technique for reducing the dimensionality of a dataset while retaining its essential structure. It works by transforming the original data into a new set of variables called principal components.  
+ The goal of PCA is to find a lower-dimensional representation of the data that captures the maximum amount of variation. In other words, it seeks to identify the directions along which the data varies the most. These directions, known as principal components, are orthogonal to each other, meaning they are uncorrelated.
+  The first principal component is a linear combination of the original variables that captures the most significant amount of variance in the dataset. It is determined by finding the direction in which the data has the maximum spread. The second principal component is chosen to be orthogonal to the first and captures the second most significant amount of variance, and so on for subsequent components.
+  To compute the principal components, PCA performs a mathematical technique called eigenvalue decomposition or singular value decomposition on the covariance matrix of the dataset. This process involves calculating the eigenvectors and eigenvalues of the covariance matrix, which represent the principal components and their corresponding variances, respectively.
+  Once the principal components are computed, the data can be projected onto a lower-dimensional subspace defined by these components. By discarding the less significant components, PCA effectively reduces the dimensionality of the data while preserving as much of the original information as possible.
+  In running the argument, we choose the argument rank = 3 beacause it is the number of principal components we are looking for.
+Then we save these principal components.
+
+  In this part we are ready to implement the Principal Component Analysis (PCA) and a Factor-Augmented Vector Autoregression (FAVAR) model following different steps. We initially work on the PCA performing it on the “data_scaled” dataset using the “prcomp” function, the principal components are extracted and saved as “PC”. The “PC” data is then displayed thanks to the “Head” command.  
+```{r pca 3 factors, echo=TRUE}
+pca_data = prcomp(data_scaled, center=FALSE, rank. = 3)
+summary(pca_data)
+PC = pca_data$x 
+head(PC)
+```
+
+  We can now move on to FAVAR, using a subset of the previous dataset containing only the slow variables. FAVAR can be applied as a simple VAR on the factors and on Y. So, we perform PCA on “data_slow_scaled” using again the “prcomp” function, we save the factors obtained as F_slow, and that makes us able to fit a regression model. 
+```{r pca 3 factors slow, echo=TRUE}
+PC_slow = prcomp(data_slow_scaled, center=FALSE, rank. = 3)
+summary(PC_slow)
+F_slow = PC_slow$x 
+head(F_slow)
+```
+
+  We obtain it regressing “PC” on “F_slow” and on our fundamental variable of the federal    funds rate. It is easy to see as we reject the null hypothesis for which the coefficient related to Fed Funds Rate is equal to zero for both PC1, PC2 and PC3 as response. Fed Funds is so a strictly significant variable for our model, and this perfectly makes sense.
+
+```{r regression, echo=TRUE}
+regression = lm(PC ~ F_slow + data_scaled[,"FEDFUNDS"])
+summary(regression)
+```
+   We display the results of our regression, and collect the residuals of the regression model in “F_hat”.
+
+```{r F_hat, echo=TRUE}
+F_hat = PC - as.matrix(data_scaled[,"FEDFUNDS"])%*%regression$coefficients[5,] 
+head(F_hat) 
+```
+
+  From now starts the second step.
+    We proceed estimating the FAVAR and working on the impulse response function. We create a new dataset “var_data” that includes the previously obtained “F_hat” and the federal funds rate as variables.
+
+```{r var_data, echo=TRUE}
+var_data = data.frame(F_hat, data_scaled[,"FEDFUNDS"])
+head(var_data)
+tail(var_data)
+```
+
+  We compute an impulse value that we collect in “impulse” based on 25 base points and the standard deviation of the federal interest rate.
+```{r impulse, echo=TRUE}
+impulse=0.25/sd(FEDFUNDS)
+impulse
+```
+
+  Now we need to compute the loadings for each variables, to compute the impulse response functions. 
+  Loadings refer to the coefficients that represent the relationship between the observed variables and the underlying factors. The loadings in FAVAR represent the factor loadings or factor loadings coefficients. These coefficients measure the sensitivity or influence of each observed variable on the corresponding factor. They indicate how much the observed variable is driven by or related to the underlying factor,  providing insights into the influence of factors on the observed data.
+  Remember that when computing the loadings, we need to avoid to consider the intercepts.
+  We use a regression model to compute the loadings for each variables, contained in “loadings”.
+```{r loadings, echo=TRUE}
+regression_loadings = lm(data_scaled ~ -1 + F_hat + data_scaled[,"FEDFUNDS"])
+loadings = regression_loadings$coefficients
+loadings
+```
+
+### Figure 1
+  The impulse response functions (IRFs) are calculated using the line “lineVar” and “irf” functions using at the same time bootstrap to do inference.
+  FAVAR: for representing a FAVAR model we suggest to look below, where, in presenting how to obtain figure 2, the entire procedure is explained in details.
+  Summarizing, after having computed the impulse response functons for the 3 factors and for the Fed Funds rate, through the loadings' matrix we can obtain the impulse response function for each particular variable to an impulse of the variable FEDFUNDS. 
+```{r FAVAR figure 1, echo=TRUE}
+var=lineVar(var_data, lag = 13, include = "const")
+irf_1=irf(var, n.ahead = 48, impulse = 'FEDFUNDS', boot = F)
+IRF_FEDFUNDS_fig_1 = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'FEDFUNDS']))
+IRF_INDPRO_fig_1 = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'INDPRO']))
+IRF_CPIAUCSL_fig_1 = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'CPIAUCSL']))
+```
+  
+  VAR MODEL:
+  To represent the impulse response functions of this VAR analysis, first it is necessary to build the dataframe including only the variables of interest, then, a VAR is apllied on the dataframe, and the impulse response functions for each variable are computed, measuring their responses to shocks in the "FEDFUNDS" variable over a specified number of periods (48 periods). The resulting IRFs provide insights into how the selected variables react to changes in the "FEDFUNDS" variable, aiding in the analysis of their interconnected dynamics. These IRF are then plotted.
+    
+```{r VAR figure 1, echo=TRUE}
+data_fig_1 = data.frame(data_scaled[,"INDPRO"],data_scaled[,"CPIAUCSL"],
+                        data_scaled[,"FEDFUNDS"])
+var_fig_1 = VAR(data_fig_1,lag = 13)
+irf_fig_FEDFUNDS = irf(var_fig_1,n.ahead = 48,impulse = 'FEDFUNDS',
+                       response = 'FEDFUNDS')
+irf_fig_INDPRO = irf(var_fig_1,n.ahead = 48,impulse = 'FEDFUNDS',
+                     response = 'INDPRO')
+irf_fig_CPIAUCSL = irf(var_fig_1,n.ahead = 48,impulse = 'FEDFUNDS',
+                       response = 'CPIAUCSL')
+```
+  
+ VAR and 1 FACTOR:
+  For what concern the representation of this model, it is identycal to the representation of FAVAR model, with few exception. In this case the number of factors considered is only one, in fact the argument rank is equal to 1, and so the principal component deriving from PCA.  
+  In addition, within our set of variables observed by Central Bank, we will consider not only the Federal Founds Rate, but also Industrial Production and Consumer Price Index, as explained before, a strong assumption.  
+   So, as in the FAVAR model, to represent it, we build a linearity VAR model, var_fig_1, with a lag of 13 and a constant term. The impulse response function (IRF) for the FEDFUNDS variable in the VAR model is computed, forecasting 48 periods ahead, and stored as irf_1_fig_1. Finally, we calculate IRF multipliers for the Federal Founds Rate, Industrial Production and Consumer Price Index variables by multiplying the IRF values with the corresponding loading coefficients.
+  
+```{r VAR and 1 factor figure 1, echo=TRUE}
+pca_fig_1 = prcomp(data_scaled, center=FALSE, rank. = 1)
+PC_fig_1 = pca_fig_1$x # saving the principal components
+
+PC_slow_fig_1 = prcomp(data_slow_scaled, center=FALSE, rank. = 1)
+F_slow_fig_1 = PC_slow_fig_1$x 
+
+regression_fig_1 = lm(PC_fig_1 ~ (F_slow_fig_1 +data_scaled[,"INDPRO"]
+                                   +data_scaled[,"CPIAUCSL"]+
+                                   +data_scaled[,"FEDFUNDS"]))
+
+F_hat_fig_1=PC_fig_1-as.matrix(data_fig_1)%*%regression_fig_1$coefficients[3:5] 
+
+data_k1_fig_1 = data.frame(F_hat_fig_1,
+                           data_scaled[,"INDPRO"],
+                           data_scaled[,"CPIAUCSL"],
+                           data_scaled[,"FEDFUNDS"])
+
+regression_loadings_fig_1 = (lm(data_scaled ~ -1 +
+                                  F_hat_fig_1 +
+                                  data_scaled[,"INDPRO"]+
+                                data_scaled[,"CPIAUCSL"]+
+                                 data_scaled[,"FEDFUNDS"]))
+loadings_fig_1 = regression_loadings_fig_1$coefficients
+
+
+var_fig_1=lineVar(data_k1_fig_1, lag = 13, include = "const")
+irf_1_fig_1=irf(var_fig_1, n.ahead = 48, impulse = 'FEDFUNDS', boot = F)
+
+a = (irf_1_fig_1$irf$FEDFUNDS%*%matrix(loadings_fig_1[1:4,'FEDFUNDS']))
+b = (irf_1_fig_1$irf$FEDFUNDS%*%matrix(loadings_fig_1[1:4,'INDPRO']))
+c = (irf_1_fig_1$irf$FEDFUNDS%*%matrix(loadings_fig_1[1:4,'CPIAUCSL']))
+```
+
+ Now we can plot the IRF computed above for the different models, to finally build figure 1.
+  
+```{r plot figure 1, echo=TRUE}
+par(mfrow=c(1,3))
+
+plot(IRF_FEDFUNDS_fig_1,type='l',lwd=2,,main='Fed funds rate',ylab='',
+     xlab='periods')
+lines(irf_fig_FEDFUNDS$irf$FEDFUNDS,col='blue',lwd=1,lty=1)
+lines(a,col='red',lwd=1,lty=1)
+abline(h=0,lty=2)
+
+plot(IRF_INDPRO_fig_1,type='l',lwd=2,main='Industrial production',ylab='',
+     xlab='periods')
+lines(irf_fig_INDPRO$irf$FEDFUNDS,col='blue',lwd=1,lty=1)
+lines(b,col='red',lwd=1,lty=1)
+abline(h=0,lty=2)
+
+plot(IRF_CPIAUCSL_fig_1,type='l',lwd=2,main='Consumer Price Index',ylab=''
+     ,xlab='periods')
+lines(irf_fig_CPIAUCSL$irf$FEDFUNDS,col='blue',lwd=1,lty=1)
+lines(c,col='red',lwd=1,lty=1)
+abline(h=0,lty=2)
+
+```
+
+  In figure 1, the black line represents our preferred FAVAR, considering only the Fed Funds Rate within the Y and 3 factors. The blue line represents instead a standar VAR analysis including the Feds Fund Rate, Industrial production and Consumer Price Index only, while the red line represents this VAR expanded by one factor. 
+  As explained by Bernanke, Boivin and Eliasz, from this figure we can understand that the responses from the preferred FAVAR are essentially the same as those obtained from expanding the standard VAR by one factor, except for the fact that probably the expanded VAR by one factor provides a less precise estimation. This suggests that the two-step estimation of the preferred FAVAR properly captures information about real activity and prices, even though no such measure is imposed as an observable factor. 
+  
+
+
+### Figure 2 
+  
+  For replicating figure 2 we start computing, with a general command, the Impulse response Functions pf all factors and of Federal Funds Rate to an impulse of the variable FEDFUNDS, obtained by running a lineVar on the dataframe considering the three factors and our desired Y (Central Bank only observes its own rate) and considering, as explained in the paper, an horizon of 48 periods ahead and 13 lags.
+  Since this two step method is based on the bootstrap procedure, cause we want to represent also the 90% confidence interval, we set as argument of the command : boot=TRUE. The default scheme for bootstrapping is resample. Remember that bootstrapping is a statistical procedure that resamples a single dataset to create many simulated samples, in order to perform inference.
+```{r GENERAL IMPULSE RESPONSE FUNCTIONS, echo=TRUE}
+var=lineVar(var_data, lag = 13, include = "const")
+irf_1=irf(var, n.ahead = 48, impulse = 'FEDFUNDS', boot = TRUE,ci = 0.90)
+```
+
+To represent the impulse response function for the different variables we initially calculate the impulse response function (IRF) for the variable "FEDFUNDS" in a time series analysis. “FEDFUNDS” is the impulse variable, and we use our variables of interest as response variable from time to time. We proceed with the calculation of the IRF using the “irf_1$irf$FEDFUNDS” term, that represents the IRF values obtained from the analysis. We use the loadings contained in the “loadings” matrix to compute the response of the particular variable to an impulse of the federal fund rate. The impulse value, of 25 basis point, is multiplied with the IRF and loadings to scale the response in an appropriate way. We calculate the lower and upper bounds as well. The lower bound for the IRF is computed by multiplying the IRF values obtained with the loadings’ matrix. The lower bound corresponds to the 0.05 quantile. The upper bound is calculated in the same way, corresponding this time with the 0.95 quantile, since we are interested in the 90% confidence interval. The impulse value is multiplied to scale the lower and upper bounds appropriately. These calculations allow us to analyze the impulse response of our variables of interest and understand how they react over time based on the factors and loadings considered in our analysis.
+  Here we report the commands for the variables represented.
+  
+```{r Impulse response functions figure 2, echo=TRUE}
+# FED_FUNDS
+
+IRF_FEDFUNDS = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'FEDFUNDS']))*impulse
+IRF_FEDFUNDS_LOWER=(irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'FEDFUNDS']))*impulse
+IRF_FEDFUNDS_UPPER=(irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'FEDFUNDS']))*impulse
+
+# INDPRO #
+
+IRF_INDPRO = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'INDPRO']))*impulse
+IRF_INDPRO_LOWER = (irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'INDPRO']))*impulse
+IRF_INDPRO_UPPER = (irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'INDPRO']))*impulse
+
+
+# CPIAUCSL #
+IRF_CPIAUCSL = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'CPIAUCSL']))*impulse
+IRF_CPIAUCSL_LOWER = (irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'CPIAUCSL']))*impulse
+IRF_CPIAUCSL_UPPER = (irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'CPIAUCSL']))*impulse
+
+
+# TB3MS #
+IRF_TB3MS = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'TB3MS']))*impulse
+IRF_TB3MS_LOWER = (irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'TB3MS']))*impulse
+IRF_TB3MS_UPPER = (irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'TB3MS']))*impulse
+
+
+# GS5 #
+IRF_GS5 = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'GS5']))*impulse
+IRF_GS5_LOWER = (irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'GS5']))*impulse
+IRF_GS5_UPPER = (irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'GS5']))*impulse
+
+
+# BOGAMBSL #
+IRF_BOGAMBSL = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'BOGAMBSL']))*impulse
+IRF_BOGAMBSL_LOWER = (irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'BOGAMBSL']))*impulse
+IRF_BOGAMBSL_UPPER = (irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'BOGAMBSL']))*impulse
+
+
+# M2SL #
+IRF_M2SL = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'M2SL']))*impulse
+IRF_M2SL_LOWER = (irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'M2SL']))*impulse
+IRF_M2SL_UPPER = (irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'M2SL']))*impulse
+
+
+# PPIFGS #
+IRF_PPIFGS = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'PPIFGS']))*impulse
+IRF_PPIFGS_LOWER = (irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'PPIFGS']))*impulse
+IRF_PPIFGS_UPPER = (irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'PPIFGS']))*impulse
+
+
+# CUMFNS #
+IRF_CUMFNS = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'CUMFNS']))*impulse
+IRF_CUMFNS_LOWER = (irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'CUMFNS']))*impulse
+IRF_CUMFNS_UPPER = (irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'CUMFNS']))*impulse
+
+
+# PCECC96 #
+IRF_PCECC96 = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'PCECC96']))*impulse
+IRF_PCECC96_LOWER = (irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'PCECC96']))*impulse
+IRF_PCECC96_UPPER = (irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'PCECC96']))*impulse
+
+
+# IPDCONGD #
+IRF_IPDCONGD = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'IPDCONGD']))*impulse
+IRF_IPDCONGD_LOWER = (irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'IPDCONGD']))*impulse
+IRF_IPDCONGD_UPPER = (irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'IPDCONGD']))*impulse
+
+
+# IPNCONGD #
+IRF_IPNCONGD = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'IPNCONGD']))*impulse
+IRF_IPNCONGD_LOWER = (irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'IPNCONGD']))*impulse
+IRF_IPNCONGD_UPPER = (irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'IPNCONGD']))*impulse
+
+
+# UNEMPLOY #
+IRF_UNEMPLOY = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'UNEMPLOY']))*impulse
+IRF_UNEMPLOY_LOWER = (irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'UNEMPLOY']))*impulse
+IRF_UNEMPLOY_UPPER = (irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'UNEMPLOY']))*impulse
+
+
+# CE16OV #
+IRF_CE16OV = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'CE16OV']))*impulse
+IRF_CE16OV_LOWER = (irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'CE16OV']))*impulse
+IRF_CE16OV_UPPER = (irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'CE16OV']))*impulse
+
+
+# COMPNFB #
+IRF_COMPNFB = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'COMPNFB']))*impulse
+IRF_COMPNFB_LOWER = (irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'COMPNFB']))*impulse
+IRF_COMPNFB_UPPER = (irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'COMPNFB']))*impulse
+
+
+# HOUST #
+IRF_HOUST = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'HOUST']))*impulse
+IRF_HOUST_LOWER = (irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'HOUST']))*impulse
+IRF_HOUST_UPPER = (irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'HOUST']))*impulse
+
+
+# DIVIDEND #
+IRF_DIVIDEND = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'DIVIDEND']))*impulse
+IRF_DIVIDEND_LOWER = (irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'DIVIDEND']))*impulse
+IRF_DIVIDEND_UPPER = (irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'DIVIDEND']))*impulse
+
+
+# UMCSENT #
+IRF_UMCSENT = (irf_1$irf$FEDFUNDS%*%matrix(loadings[1:4,'UMCSENT']))*impulse
+IRF_UMCSENT_LOWER = (irf_1$Lower$FEDFUNDS%*%matrix(loadings[1:4,'UMCSENT']))*impulse
+IRF_UMCSENT_UPPER = (irf_1$Upper$FEDFUNDS%*%matrix(loadings[1:4,'UMCSENT']))*impulse
+```
+ 
+  Here we report the results of the IRF, with 90% confidence interval for the variable Fed Funds, as an example.
+  
+```{r Impulse response functions figure 2 example, echo=TRUE}
+irf_fedfundf_fig_1 =cbind(0:48,IRF_FEDFUNDS_LOWER,IRF_FEDFUNDS,IRF_FEDFUNDS_UPPER)
+colnames(irf_fedfundf_fig_1)=c('Periods','Lower bound','IRF Fedfunds','Upper bound')
+irf_fedfundf_fig_1.df=as.data.frame(irf_fedfundf_fig_1)
+kable(irf_fedfundf_fig_1.df, 
+      digits = 3,
+      caption = 'two step FAVAR - 3 factors')
+```
+  
+  
+  And now we are able to represent figure 2: the impulse response functions of the variables of interest for a FAVAR model with three factors and the desired Y estimated through the two step method are as follows. In addition, also the 90% confidence interval is represented.
+  We have to say that, for us, it was not possible to import two of the twenty variables represented in the paper, "Exchange rate Yen" and "New orders", so only 18 variables are represented here.
+  
+  
+```{r Representation figure 2, echo=TRUE}
+par(mfrow=c(3,3), 
+    mar = c(2, 2, 2, 2))
+
+plot(IRF_FEDFUNDS,type='l',lwd=2,main='Fed funds rate',ylab='',
+     xlab='periods', ylim=c(-0.015,0.019))
+lines(IRF_FEDFUNDS_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_FEDFUNDS_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_INDPRO,type='l',lwd=2,main='Industrial production',
+     ylab='' ,xlab='periods', ylim=c(-0.018,0.019))
+lines(IRF_INDPRO_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_INDPRO_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_CPIAUCSL,type='l',
+     lwd=2,main='Consumer Price Index',ylab='',
+     xlab='periods',ylim=c(-0.02,0.015))
+lines(IRF_CPIAUCSL_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_CPIAUCSL_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_TB3MS,type='l',lwd=2,main='TB3MS',ylab='',
+     xlab='periods', ylim=c(-0.015,0.015))
+lines(IRF_TB3MS_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_TB3MS_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_GS5,type='l',lwd=2,main='5y Treasury Bonds',ylab='',
+     xlab='periods', ylim=c(-0.015,0.015))
+lines(IRF_GS5_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_GS5_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_BOGAMBSL,type='l',lwd=2,main='Monetary Base',ylab=''
+     ,xlab='periods')
+lines(IRF_BOGAMBSL_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_BOGAMBSL_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_M2SL,type='l',lwd=2,main='M2',ylab='',xlab='periods', 
+     ylim=c(-0.008,0.0058))
+lines(IRF_M2SL_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_M2SL_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_PPIFGS,type='l',lwd=2,main='Producer Price Index:',
+     ylab='',xlab='periods', ylim=c(-0.02,0.01))
+lines(IRF_PPIFGS_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_PPIFGS_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_CUMFNS,type='l',lwd=2,main='Capacity utilization rate',
+     ylab='',xlab='periods', ylim=c(-0.018,0.018))
+lines(IRF_CUMFNS_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_CUMFNS_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_PCECC96,type='l',lwd=2,main='Personal Consumption
+     Expenditures',ylab='',xlab='periods', ylim=c(-0.015,0.015))
+lines(IRF_PCECC96_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_PCECC96_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_IPDCONGD,type='l',lwd=2,main='Durable Consumer Goods',
+     ylab='',xlab='periods', ylim=c(-0.015,0.015))
+lines(IRF_IPDCONGD_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_IPDCONGD_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_IPNCONGD,type='l',lwd=2,main='Nondurable Consumer Goods',
+     ylab='', xlab='periods', ylim=c(-0.01,0.009))
+lines(IRF_IPNCONGD_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_IPNCONGD_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_UNEMPLOY,type='l',lwd=2,main='Unemployment Level',
+     ylab='',xlab='periods', ylim=c(-0.015,0.02))
+lines(IRF_UNEMPLOY_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_UNEMPLOY_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_CE16OV,type='l',lwd=2,main='Employment Level',
+     ylab='',
+     xlab='periods', ylim=c(-0.013,0.008))
+lines(IRF_CE16OV_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_CE16OV_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_COMPNFB,type='l',lwd=2,main='avg hourly earnings',
+     ylab='', xlab='periods', ylim=c(-0.0135,0.0085))
+lines(IRF_COMPNFB_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_COMPNFB_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_HOUST,type='l',lwd=2,main='
+     Housing Starts',ylab='',xlab='periods')
+lines(IRF_HOUST_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_HOUST_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_DIVIDEND,type='l',lwd=2,main='Dividends',ylab='',
+     xlab='periods')
+lines(IRF_DIVIDEND_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_DIVIDEND_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_UMCSENT,type='l',lwd=2,main='Consumer Expectations',
+     ylab='',
+     xlab='periods', ylim=c(-0.0065,0.009))
+lines(IRF_UMCSENT_LOWER,type = 'l', lty=2, col="red")
+lines(IRF_UMCSENT_UPPER,type = 'l', lty=2, col="red")
+abline(h=0)
+```
+  
+The results of the figures with respect to the paper are slightly different, but this does not come as a surprise since we decided to use a slightly different dataset. What is interesting to comment is the fact that all the relations between the IRF of the different variables are almost the same. In fact, we can see that the IRFs of the variables representing an interest rate, fed funds, 3 months and 5 years, follow the same path. The same happens for the monetary aggregates M1 and M1, and for all the classes of similar variables, such as durable and non durable good and personal consumption expenditure. An addtional point of interest for us is that the impulse response function of employment level and unemployment level specular, and this makes us confident about our results.
+  
+  
+### Comparison with another dataset
+
+  On the website it is possible to find many different dataset for the replication of this famous paper. Since we decided to build our own dataset, really similar to the original one, but for some small differences, we also repeat the previous procedure for replicating Figure 2 with the original dataset found on the GitHub website.
+  
+ We now import the dataset from our working directory and then we scale the data, as did before.
+  
+```{r dataset github, echo=TRUE}
+library(readxl)
+data_g = read_xlsx('datasetBBE2005.xlsx')
+data_g = data_g[,-1]
+slowvariables_g = c("IP", "LHUR", "PUNEW", "IPP", "IPF", "IPC", "IPCD", 
+                    "IPCN", "IPE", "IPI", "IPM",
+                    "IPMD", "IPMND", "IPMFG", "IPD", "IPN", "IPMIN", "IPUT",
+                    "IPXMCA", "PMI", "PMP",
+                    "GMPYQ", "GMYXPQ", "LHEL", "LHELX", "LHEM", "LHNAG", 
+                    "LHU680", "LHU5", "LHU14",
+                    "LHU15", "LHU26", "LPNAG", "LP", "LPGD", "LPMI", "LPCC",
+                    "LPEM", "LPED", "LPEN",
+                    "LPSP", "LPTU", "LPT", "LPFR", "LPS", "LPGOV", "LPHRM", 
+                    "LPMOSA", "PMEMP", "GMCQ",
+                    "GMCDQ", "GMCNQ", "GMCSQ", "GMCANQ", "PWFSA", "PWFCSA",
+                    "PWIMSA", "PWCMSA", "PSM99Q",
+                    "PU83", "PU84", "PU85", "PUC", "PUCD", "PUS", "PUXF",
+                    "PUXHS", "PUXM", "LEHCC", "LEHM")
+
+data_scaled_g = scale(data_g, center = TRUE, scale = TRUE)
+head(data_g)
+```
+
+Here we apply the Principal Component Analysis on both the whole data and only on the slow moving variables.
+
+```{r scale dataset github, echo=TRUE}
+pca_data_g = prcomp(data_scaled_g, center=FALSE, scale.=FALSE, rank. = 3)
+summary(pca_data_g)
+PC_g = pca_data_g$x
+head(PC_g)
+
+data_slow_scaled_g = data_scaled_g[,slowvariables_g]
+PC_slow_g = prcomp(data_slow_scaled_g, center=FALSE, scale.=FALSE, rank. = 3)
+F_slow_g = PC_slow_g$x 
+head(F_slow_g)
+```
+
+  We compute the estimates of the three factors:
+
+```{r F_hat github, echo=TRUE}
+regression_g = lm(PC_g ~ F_slow_g + data_scaled_g[,"FYFF"])
+F_hat_g = PC_g - data.matrix(data_scaled_g[,"FYFF"])%*%regression_g$coefficients[5,] 
+head(F_hat_g)
+```
+
+And we build the dataframe on which we apply the VAR analysis.
+
+```{r var_data github, echo=TRUE}
+var_data_g = data.frame(F_hat_g, 'FYFF'= data_scaled_g[,"FYFF"])
+head(var_data_g)
+```
+
+ With these data, an impulse of 25 basis point of the Federal Founds Rate is equal to:
+
+```{r impulse github, echo=TRUE}
+impulse_g=0.25/sd(fyff)
+impulse_g
+```
+
+  And, again, we compute the loadings:
+
+```{r loadings github, echo=TRUE}
+regression_loadings_g = lm(data_scaled_g ~ -1 + F_hat_g + data_scaled_g[,"FYFF"])
+loadings_g = regression_loadings_g$coefficients
+```
+
+The way in which we represent the Impulse Response Functions is equal to the previous case. 
+  Here we only report the commands used for the first variable, the Federal Founds Rate. For what concern the other variables, commands are not shown in the pdf.
+ 
+```{r IRF fed funds github, echo=TRUE} 
+var_g = lineVar(var_data_g, lag = 13, include = "const")
+irf_1_g = irf(var_g, n.ahead = 48, impulse = 'FYFF', boot = TRUE,ci = 0.90)
+
+# FYFF
+IRF_FYFF_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'FYFF']))*impulse_g
+IRF_FYFF_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'FYFF']))*impulse_g
+IRF_FYFF_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'FYFF']))*impulse_g
+```
+
+```{r IRF all variables github, echo=FALSE} 
+# IP
+IRF_IP_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'IP']))*impulse_g
+IRF_IP_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'IP']))*impulse_g
+IRF_IP_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'IP']))*impulse_g
+
+# DA QUA CONTINUA TU...
+
+# PUNEW
+IRF_PUNEW_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'PUNEW']))*impulse_g
+IRF_PUNEW_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'PUNEW']))*impulse_g
+IRF_PUNEW_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'PUNEW']))*impulse_g
+
+# FYGM3
+IRF_FYGM3_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'FYGM3']))*impulse_g
+IRF_FYGM3_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'FYGM3']))*impulse_g
+IRF_FYGM3_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'FYGM3']))*impulse_g
+
+# FYGT5
+IRF_FYGT5_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'FYGT5']))*impulse_g
+IRF_FYGT5_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'FYGT5']))*impulse_g
+IRF_FYGT5_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'FYGT5']))*impulse_g
+
+# FMFBA
+IRF_FMFBA_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'FMFBA']))*impulse_g
+IRF_FMFBA_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'FMFBA']))*impulse_g
+IRF_FMFBA_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'FMFBA']))*impulse_g
+
+# FM2
+IRF_FM2_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'FM2']))*impulse_g
+IRF_FM2_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'FM2']))*impulse_g
+IRF_FM2_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'FM2']))*impulse_g
+
+# EXRJAN
+IRF_EXRJAN_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'EXRJAN']))*impulse_g
+IRF_EXRJAN_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'EXRJAN']))*impulse_g
+IRF_EXRJAN_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'EXRJAN']))*impulse_g
+
+# PMCP
+IRF_PMCP_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'PMCP']))*impulse_g
+IRF_PMCP_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'PMCP']))*impulse_g
+IRF_PMCP_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'PMCP']))*impulse_g
+
+# IPXMCA
+IRF_IPXMCA_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'IPXMCA']))*impulse_g
+IRF_IPXMCA_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'IPXMCA']))*impulse_g
+IRF_IPXMCA_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'IPXMCA']))*impulse_g
+
+# GMCQ
+IRF_GMCQ_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'GMCQ']))*impulse_g
+IRF_GMCQ_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'GMCQ']))*impulse_g
+IRF_GMCQ_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'GMCQ']))*impulse_g
+
+# GMCDQ
+IRF_GMCDQ_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'GMCDQ']))*impulse_g
+IRF_GMCDQ_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'GMCDQ']))*impulse_g
+IRF_GMCDQ_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'GMCDQ']))*impulse_g
+
+# GMCNQ
+IRF_GMCNQ_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'GMCNQ']))*impulse_g
+IRF_GMCNQ_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'GMCNQ']))*impulse_g
+IRF_GMCNQ_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'GMCNQ']))*impulse_g
+
+# LHUR
+IRF_LHUR_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'LHUR']))*impulse_g
+IRF_LHUR_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'LHUR']))*impulse_g
+IRF_LHUR_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'LHUR']))*impulse_g
+
+# LHELX
+IRF_LHELX_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'LHELX']))*impulse_g
+IRF_LHELX_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'LHELX']))*impulse_g
+IRF_LHELX_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'LHELX']))*impulse_g
+
+# LEHCC
+IRF_LEHCC_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'LEHCC']))*impulse_g
+IRF_LEHCC_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'LEHCC']))*impulse_g
+IRF_LEHCC_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'LEHCC']))*impulse_g
+
+# HSFR
+IRF_HSFR_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'HSFR']))*impulse_g
+IRF_HSFR_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'HSFR']))*impulse_g
+IRF_HSFR_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'HSFR']))*impulse_g
+
+# MOCMQ
+IRF_MOCMQ_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'MOCMQ']))*impulse_g
+IRF_MOCMQ_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'MOCMQ']))*impulse_g
+IRF_MOCMQ_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'MOCMQ']))*impulse_g
+
+# FSDXP
+IRF_FSDXP_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'FSDXP']))*impulse_g
+IRF_FSDXP_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'FSDXP']))*impulse_g
+IRF_FSDXP_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'FSDXP']))*impulse_g
+
+# PUNEW
+IRF_PUNEW_g = (irf_1_g$irf$FYFF%*%matrix(loadings_g[1:4,'PUNEW']))*impulse_g
+IRF_PUNEW_LOWER_g = (irf_1_g$Lower$FYFF%*%matrix(loadings_g[1:4,'PUNEW']))*impulse_g
+IRF_PUNEW_UPPER_g = (irf_1_g$Upper$FYFF%*%matrix(loadings_g[1:4,'PUNEW']))*impulse_g
+
+```
+
+And now we can represent, exactly as did before, the different IRF.
+ For a better comparison we decided to exactly represent the 18 variables presented using our own dataset.
+ In the pdf version it is possible to see only the figure, for the entire code look at the markdown file.
+
+```{r Figure 2 github all variables, echo=FALSE}
+par(mfrow=c(3,3), 
+    mar = c(2, 2, 2, 2))
+
+plot(IRF_FYFF_g,type='l',lwd=2,main='Fed funds rate',ylab='',xlab='periods', ylim=c(-0.007,0.018))
+lines(IRF_FYFF_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_FYFF_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_IP_g,type='l',lwd=2,main='Industrial Production',ylab='',xlab='periods', ylim=c(-0.0135,0.0058))
+lines(IRF_IP_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_IP_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_PUNEW_g,type='l',lwd=2,main='Consumer Price Index',ylab='',xlab='periods', ylim=c(-0.015,0.012))
+lines(IRF_PUNEW_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_PUNEW_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_FYGM3_g,type='l',lwd=2,main='3M Tresury Bills',ylab='',xlab='periods', ylim=c(-0.0065,0.0155))
+lines(IRF_FYGM3_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_FYGM3_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_FYGT5_g,type='l',lwd=2,main='5Y Tresury Bills',ylab='',xlab='periods', ylim=c(-0.0045,0.011))
+lines(IRF_FYGT5_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_FYGT5_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_FMFBA_g,type='l',lwd=2,main='Monetary Base',ylab='',xlab='periods')
+lines(IRF_FMFBA_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_FMFBA_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_FM2_g,type='l',lwd=2,main='M2',ylab='',xlab='periods')
+lines(IRF_FM2_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_FM2_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_PMCP_g,type='l',lwd=2,main='Commodity Price Index',ylab='',xlab='periods', ylim=c(-0.015,0.0085))
+lines(IRF_PMCP_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_PMCP_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_IPXMCA_g,type='l',lwd=2,main='Capacity Util Rate',ylab='',xlab='periods', ylim=c(-0.011,0.006))
+lines(IRF_IPXMCA_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_IPXMCA_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_GMCQ_g,type='l',lwd=2,main='Personal consumption',ylab='',xlab='periods', ylim=c(-0.005,0.0035))
+lines(IRF_GMCQ_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_GMCQ_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_GMCDQ_g,type='l',lwd=2,main='Durable consumption',ylab='',xlab='periods', ylim=c(-0.004,0.0028))
+lines(IRF_GMCDQ_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_GMCDQ_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_GMCNQ_g,type='l',lwd=2,main='Nondurable consumption',ylab='',xlab='periods', ylim=c(-0.0035,0.003))
+lines(IRF_GMCNQ_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_GMCNQ_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_LHUR_g,type='l',lwd=2,main='Unemployment',ylab='',xlab='periods')
+lines(IRF_LHUR_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_LHUR_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_LHELX_g,type='l',lwd=2,main='Employment',ylab='',xlab='periods')
+lines(IRF_LHELX_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_LHELX_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_LEHCC_g,type='l',lwd=2,main='avg hourly earnings',ylab='',xlab='periods', ylim=c(-0.0035,0.004))
+lines(IRF_LEHCC_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_LEHCC_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_HSFR_g,type='l',lwd=2,main='Housing starts',ylab='',xlab='periods')
+lines(IRF_HSFR_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_HSFR_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_FSDXP_g,type='l',lwd=2,main='Dividends',ylab='',xlab='periods', ylim=c(-0.005,0.008))
+lines(IRF_FSDXP_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_FSDXP_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_PUNEW_g,type='l',lwd=2,main='Consumer expectations',ylab='',xlab='periods', ylim=c(-0.012,0.012))
+lines(IRF_PUNEW_LOWER_g,type = 'l', lty=2, col="red")
+lines(IRF_PUNEW_UPPER_g,type = 'l', lty=2, col="red")
+abline(h=0)
+```
+
+Since we are considering two different datasets, the results are slightly different. What really matters is the fact that the patterns between the same variables in the two graphs are coherent, and also the relationships discussed before between the different variables are unaltered. 
+ 
+ 
+## FAVAR estimation with 5 factors
+
+  Since the economy might have other unmodeled dimensions, we check below the robustness of the results to an alternative of five factors. To take into consideration 5 factors for the FAVAR analysis instead of only 5, we must start our analysis by considering a PCA with 5 different principal components, so we will modify the argument of the command by setting rank = 5.
+
+  When performing PCA with 3 principal components, the analysis aims to capture the three most significant directions of variation in the data.
+  On the other hand, if PCA is performed with 5 principal components, it aims to capture five significant directions of variation in the data. In this case, the five PCs together explain more variance compared to the analysis with only three PCs. The first PC still captures the most variance, followed by the second PC, third PC, fourth PC, and finally the fifth PC. 
+  The difference between PCA with 3 components and PCA with 5 components lies in the amount of information and dimensionality reduction achieved. Using 5 components allows for a more detailed representation of the original data, capturing more patterns and structures. 
+  However, this may also introduce more noise or less significant variations in the lower-dimensional representation. In contrast, PCA with 3 components provides a more compact representation but might discard some detailed information captured by the additional two components.
+
+  After this necessary change, the procedure is completely the same as before, so we will simply repeat all the commands to obtain figure 2
+
+  We start from Principal Component Analysis:
+```{r pca 5 factors slow, echo=TRUE}
+pca_data5 = prcomp(data_scaled, center=FALSE, rank. = 5)
+summary(pca_data5)
+PC5 = pca_data5$x 
+head(PC5)
+```
+  And also for the set of slow variables we apply PCA.
+```{r pca 5 factors slow2, echo=TRUE}
+PC_slow5 = prcomp(data_slow_scaled, center=FALSE, rank. = 5)
+F_slow5 = PC_slow5$x 
+head(F_slow5)
+```
+
+  We apply a linear regression to estimate the coefficients for the principal component of the slow moving variable and of the Federal Founds Rate with respect to the PC of the entire dataset.
+```{r regression 5, echo=TRUE}
+regression5 = lm(PC5 ~ F_slow5 + data_scaled[,"FEDFUNDS"])
+```
+  
+  And then we isolate the factors estimates, remembering that in this case they're five.
+```{r F_hat5, echo=TRUE}
+F_hat5 = PC5 - as.matrix(data_scaled[,"FEDFUNDS"])%*%regression5$coefficients[7,] 
+head(F_hat5)
+```
+
+  We build our dataset, composed of the five factors and our variable (Y) observed by CB (the Fed rate)
+```{r var_data5, echo=TRUE}
+var_data5 = data.frame(F_hat5,data_scaled[,"FEDFUNDS"])
+head(var_data5)
+```
+
+  Here we compute loadings:
+```{r loadings 5f, echo=TRUE}
+regression_loadings5 = lm(data_scaled ~ -1 + F_hat5 + data_scaled[,"FEDFUNDS"])
+loadings5 = regression_loadings5$coefficients
+```
+
+### Figure 3
+
+  We can finally represent figure 3. Again, we start from a general impulse response function, containing the responses of all the factors and the Fed Funds variable to an impulse of Fed Funds, obtained by running a lineVar on the dataframe built above.
+```{r GENERAL IMPULSE RESPONSE FUNCTIONS 5f, echo=TRUE}
+var5=lineVar(var_data5, lag = 13, include = "const")
+irf_1.5=irf(var5, n.ahead = 48, impulse = 'FEDFUNDS', boot = TRUE,ci = 0.90)
+```
+
+  And then, through the loadings' matrix we compute the impulse response function for each represented variable. Here we report the command only for the second variable, INDPRO. The commands for the other variables are not shown in the pdf version, but are reported in the Markdown file.
+```{r Impulse response functions figure 3 Indpro, echo=TRUE}
+
+# INDPRO
+IRF_INDPRO5 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'INDPRO']))*impulse
+IRF_INDPRO_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'INDPRO']))*impulse
+IRF_INDPRO_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'INDPRO']))*impulse
+
+```
+
+
+```{r Impulse response functions figure 3, echo=FALSE}
+
+# FED_FUNDS
+
+IRF_FEDFUNDS5 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'FEDFUNDS']))*impulse
+IRF_FEDFUNDS_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'FEDFUNDS']))*impulse
+IRF_FEDFUNDS_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'FEDFUNDS']))*impulse
+
+# CPIAUCSL
+IRF_CPIAUCSL5 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'CPIAUCSL']))*impulse
+IRF_CPIAUCSL_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'CPIAUCSL']))*impulse
+IRF_CPIAUCSL_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'CPIAUCSL']))*impulse
+
+
+# TB3MS
+IRF_TB3MS5 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'TB3MS']))*impulse
+IRF_TB3MS_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'TB3MS']))*impulse
+IRF_TB3MS_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'TB3MS']))*impulse
+
+
+# GS5
+IRF_GS55 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'GS5']))*impulse
+IRF_GS5_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'GS5']))*impulse
+IRF_GS5_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'GS5']))*impulse
+
+
+# BOGAMBSL
+IRF_BOGAMBSL5 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'BOGAMBSL']))*impulse
+IRF_BOGAMBSL_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'BOGAMBSL']))*impulse
+IRF_BOGAMBSL_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'BOGAMBSL']))*impulse
+
+
+#M2
+IRF_M2SL5 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'M2SL']))*impulse
+IRF_M2SL_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'M2SL']))*impulse
+IRF_M2SL_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'M2SL']))*impulse
+
+
+#PPIFGS
+IRF_PPIFGS5 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'PPIFGS']))*impulse
+IRF_PPIFGS_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'PPIFGS']))*impulse
+IRF_PPIFGS_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'PPIFGS']))*impulse
+
+
+#CUMFNS
+IRF_CUMFNS5 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'CUMFNS']))*impulse
+IRF_CUMFNS_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'CUMFNS']))*impulse
+IRF_CUMFNS_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'CUMFNS']))*impulse
+
+
+#PCECC96
+IRF_PCECC965 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'PCECC96']))*impulse
+IRF_PCECC96_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'PCECC96']))*impulse
+IRF_PCECC96_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'PCECC96']))*impulse
+
+
+#IPDCONGD
+IRF_IPDCONGD5 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'IPDCONGD']))*impulse
+IRF_IPDCONGD_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'IPDCONGD']))*impulse
+IRF_IPDCONGD_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'IPDCONGD']))*impulse
+
+
+#IPNCONGD
+IRF_IPNCONGD5 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'IPNCONGD']))*impulse
+IRF_IPNCONGD_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'IPNCONGD']))*impulse
+IRF_IPNCONGD_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'IPNCONGD']))*impulse
+
+
+#UNEMPLOY
+IRF_UNEMPLOY5 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'UNEMPLOY']))*impulse
+IRF_UNEMPLOY_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'UNEMPLOY']))*impulse
+IRF_UNEMPLOY_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'UNEMPLOY']))*impulse
+
+
+#CE16OV
+IRF_CE16OV5 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'CE16OV']))*impulse
+IRF_CE16OV_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'CE16OV']))*impulse
+IRF_CE16OV_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'CE16OV']))*impulse
+
+
+#COMPNFB
+IRF_COMPNFB5 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'COMPNFB']))*impulse
+IRF_COMPNFB_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'COMPNFB']))*impulse
+IRF_COMPNFB_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'COMPNFB']))*impulse
+
+
+#COMPNFB
+IRF_HOUST5 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'HOUST']))*impulse
+IRF_HOUST_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'HOUST']))*impulse
+IRF_HOUST_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'HOUST']))*impulse
+
+
+#DIVIDEND
+IRF_DIVIDEND5 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'DIVIDEND']))*impulse
+IRF_DIVIDEND_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'DIVIDEND']))*impulse
+IRF_DIVIDEND_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'DIVIDEND']))*impulse
+
+
+#UMCSENT
+IRF_UMCSENT5 = (irf_1.5$irf$FEDFUNDS%*%matrix(loadings5[1:6,'UMCSENT']))*impulse
+IRF_UMCSENT_LOWER5 = (irf_1.5$Lower$FEDFUNDS%*%matrix(loadings5[1:6,'UMCSENT']))*impulse
+IRF_UMCSENT_UPPER5 = (irf_1.5$Upper$FEDFUNDS%*%matrix(loadings5[1:6,'UMCSENT']))*impulse
+
+```
+ 
+  Here we report, similarly to before, the results of the IRF, with 90% confidence interval for the variable INDPRO (Industrial Production), as an example.
+  
+```{r Impulse response functions figure 3 example, echo=TRUE}
+irf_indpro_fig_3 =cbind(0:48,IRF_INDPRO_LOWER5,IRF_INDPRO5,IRF_INDPRO_LOWER5)
+colnames(irf_indpro_fig_3)=c('Periods','Lower bound','IRF Industrial Production',
+                             'Upper bound')
+irf_indpro_fig_3.df=as.data.frame(irf_indpro_fig_3)
+kable(irf_indpro_fig_3.df, 
+      digits = 3,
+      caption = 'two step FAVAR - 5 factors')
+```
+  
+
+  Again, we represent the different IRFs with the 0.05 and 0.95 quantiles (90% confidence interval).
+  Commands are not reported in the pdf version.
+  
+```{r Representation figure 3, echo=FALSE}
+par(mfrow=c(3,3), 
+    mar = c(2, 2, 2, 2))
+
+plot(IRF_FEDFUNDS5,type='l',lwd=2,main='Fed funds rate',ylab='',xlab='periods')
+lines(IRF_FEDFUNDS_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_FEDFUNDS_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_INDPRO5,type='l',lwd=2,main='Industrial Production',ylab='',xlab='periods')
+lines(IRF_INDPRO_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_INDPRO_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+
+plot(IRF_CPIAUCSL5,type='l',lwd=2,main='Consumer Price Index for All Urban Consumers',ylab='',xlab='periods', ylim=c(-0.02,0.012))
+lines(IRF_CPIAUCSL_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_CPIAUCSL_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_TB3MS5,type='l',lwd=2,main='3-Month Treasury Bill',ylab='',xlab='periods', ylim=c(-0.01,0.015))
+lines(IRF_TB3MS_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_TB3MS_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_GS55,type='l',lwd=2,main='5y Treasury Bonds',ylab='',xlab='periods', ylim=c(-0.01,0.015))
+lines(IRF_GS5_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_GS5_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_BOGAMBSL5,type='l',lwd=2,main='Monetray Base',ylab='',xlab='periods', ylim=c(-0.007,0.0085))
+lines(IRF_BOGAMBSL_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_BOGAMBSL_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_M2SL5,type='l',lwd=2,main='M2',ylab='',xlab='periods', ylim=c(-0.015,0.0088))
+lines(IRF_M2SL_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_M2SL_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_PPIFGS5,type='l',lwd=2,main='Producer Price Index: Finished Goods',ylab='',xlab='periods', ylim=c(-0.018,0.01))
+lines(IRF_PPIFGS_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_PPIFGS_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_CUMFNS5,type='l',lwd=2,main='Capacity utilization rate',ylab='',xlab='periods')
+lines(IRF_CUMFNS_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_CUMFNS_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_PCECC965,type='l',lwd=2,main='Real Personal Consumption Expenditures',ylab='',xlab='periods', ylim=c(-0.013,0.015))
+lines(IRF_PCECC96_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_PCECC96_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_IPDCONGD5,type='l',lwd=2,main='Industrial Production: Durable Consumer Goods',ylab='',xlab='periods', ylim=c(-0.011,0.014))
+lines(IRF_IPDCONGD_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_IPDCONGD_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_IPNCONGD5,type='l',lwd=2,main='Industrial Production: Nondurable Consumer Goods',ylab='',xlab='periods', ylim=c(-0.0063,0.007))
+lines(IRF_IPNCONGD_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_IPNCONGD_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_UNEMPLOY5,type='l',lwd=2,main='Unemployment Level',ylab='',xlab='periods')
+lines(IRF_UNEMPLOY_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_UNEMPLOY_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_CE16OV5,type='l',lwd=2,main='Employment Level',ylab='',xlab='periods')
+lines(IRF_CE16OV_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_CE16OV_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_COMPNFB5,type='l',lwd=2,main='avg hourly earnings',ylab='',xlab='periods', ylim=c(-0.014,0.0065))
+lines(IRF_COMPNFB_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_COMPNFB_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_HOUST5,type='l',lwd=2,main='New Privately-Owned Housing Units Started',ylab='',xlab='periods', ylim=c(-0.015,0.015))
+lines(IRF_HOUST_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_HOUST_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_DIVIDEND5,type='l',lwd=2,main='Dividends',ylab='',xlab='periods')
+lines(IRF_DIVIDEND_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_DIVIDEND_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+plot(IRF_UMCSENT5,type='l',lwd=2,main='Consumer Expectations',ylab='',xlab='periods')
+lines(IRF_UMCSENT_LOWER5,type = 'l', lty=2, col="red")
+lines(IRF_UMCSENT_UPPER5,type = 'l', lty=2, col="red")
+abline(h=0)
+
+```
+ 
+As explained in the paper, even in our case, the figure suggests that the qualitative conclusions on the effect of monetary policy are not altered by the use of five factors. Further increases in the number of factors did not change qualitative nature of our results.
+
+  
+  
+# Variance decomposition
+  When considering a FAVAR model, we can think as the observed variables as a combination of common factors and idiosyncratic components. The common factors represent the shared variation across the observed variables, while the idiosyncratic components capture the unique variation specific to each variable.
+The variance decomposition in a FAVAR model quantifies the proportion of the forecast error variance in each observed variable that can be attributed to the common factors versus the idiosyncratic components. It provides a breakdown of the sources of variability in the data.
+To perform the variance decomposition, the FAVAR model estimates the factor loadings, which indicate the strength of the relationship between the observed variables and the underlying factors. These loadings represent how much each observed variable is influenced by the factors. The factor loadings are typically estimated through techniques such as PCA.
+Once the factor loadings are estimated, the FAVAR model can decompose the forecast error variance of each observed variable into two components: the part attributable to the common factors and the part attributable to the idiosyncratic components. This decomposition reveals the relative contributions of the factors and the idiosyncratic shocks to the total variability in each variable.
+By examining the variance decomposition results, analysts can gain insights into the importance of the common factors in explaining the variations in the observed variables. A high proportion of variance explained by the common factors suggests that the underlying factors play a significant role in driving the dynamics of the variables. On the other hand, a larger proportion of variance attributed to idiosyncratic components indicates that the individual-specific shocks have a more prominent influence on the variable's behavior.
+The variance decomposition thus provides a detailed understanding of the relative contributions of the factors and the idiosyncratic shocks to the variability observed in the FAVAR model. It helps identify the key driving forces behind the fluctuations in the data and enables researchers to assess the significance of the underlying factors in explaining the dynamics of the observed variables.
+
+  As Bernanke, Boivin and Eliasz did in the paper, we consider a time horizon of 60 periods ahead, and we run a Var on our dataframe composed by the three factors and the preferred Y, including only the Fed Funds Rate. Then a general impulse response function without bootstrapping is computed.
+  
+```{r FIRST VAR DEC, echo=TRUE}
+ahead = 60
+var = VAR(var_data, p = 13)
+irf_total = irf(var, n.ahead = ahead, boot = FALSE)
+```
+
+  We compute the summary of loadings since it contains some useful arguments such as the idiosyncratic component and the $R^2$.
+```{r LOADINGS VAR DEC, echo=TRUE}
+summary_loadings = summary(regression_loadings)
+```
+  We now explain the procedure followed for one variable, because it is equal for all the variables considered.
+  The total variance of each observable variable $X_t$ is just the sum of the squared impulse response functions plus the variance of the measurement error. 
+  Note that at step j it is necessary to sum the previous j impulse responses to compute the total variance.
+  So, we proceed by computing the impulse response function for the variable of interest, as did before, through the loadings' matrix, at an impulse of each of the three factors and of the FEDFUNDS variable. At the end we are interested in the contribution of the monetary policy shock to the variance of the forecast error at the 60-month horizon and in the $R^2$ of the common component for each of these variables.
+  
+```{r FED VAR DEC, echo=TRUE}
+irf_FEDFUNDS_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'FEDFUNDS'])
+irf_FEDFUNDS_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'FEDFUNDS'])
+irf_FEDFUNDS_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'FEDFUNDS'])
+irf_FEDFUNDS_FEDFUNDS = irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,
+                                                                   'FEDFUNDS'])
+```
+
+  Then we square the IRF computed before,
+```{r IRF FED VAR DEC, echo=TRUE}
+squared_irf_FEDFUNDS_pc1 =(irf_FEDFUNDS_pc1)^2
+squared_irf_FEDFUNDS_pc2 =(irf_FEDFUNDS_pc2)^2
+squared_irf_FEDFUNDS_pc3 =(irf_FEDFUNDS_pc3)^2
+squared_irf_FEDFUNDS_FEDFUNDS =(irf_FEDFUNDS_FEDFUNDS)^2
+```
+
+ And we sum them all together, since we are interested in analysing the variance decomposition after 60 periods.
+```{r SUM FED VAR DEC, echo=TRUE}
+sum_FEDFUNDS_pc1 = cumsum(squared_irf_FEDFUNDS_pc1)[61] 
+sum_FEDFUNDS_pc2 = cumsum(squared_irf_FEDFUNDS_pc2)[61]
+sum_FEDFUNDS_pc3 =  cumsum(squared_irf_FEDFUNDS_pc3)[61]
+sum_FEDFUNDS_FEDFUNDS = cumsum(squared_irf_FEDFUNDS_FEDFUNDS)[61]
+```
+
+  We can finally compute the variance depending by the factors. While for what concern the idoosyncratic component, it can be detected from the summary of loadings.
+```{r R2 FED VAR DEC, echo=TRUE}
+factor_variance_FEDFUNDS = (sum_FEDFUNDS_pc1 + sum_FEDFUNDS_pc2 + 
+                              sum_FEDFUNDS_pc3 + sum_FEDFUNDS_FEDFUNDS)
+residual_variance_FEDFUNDS = (summary_loadings$`Response FEDFUNDS`$sigma)^2
+total_variance_FEDFUNDS = factor_variance_FEDFUNDS + residual_variance_FEDFUNDS
+```
+
+Here we compute the the contribution of the monetary policy shock to the total variance and we detect the $R^2$ index from the summary of loadings.
+
+```{r R2 FED VAR DEC results, echo=TRUE}
+variance_decomposition_FEDFUNDS = 
+  sum_FEDFUNDS_FEDFUNDS / total_variance_FEDFUNDS
+R2_FEDFUNDS = summary_loadings$`Response FEDFUNDS`$r.squared
+```
+
+Now we replicate the same process for each variable. The commands for all the other variables are not shown in the pdf version, but can be studied in the Markdown file.
+  
+```{r GRANDE VAR DEC, echo=FALSE}
+# INDPRO
+
+irf_INDPRO_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'INDPRO'])
+irf_INDPRO_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'INDPRO'])
+irf_INDPRO_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'INDPRO'])
+irf_INDPRO_FEDFUNDS = irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,'INDPRO'])
+
+squared_irf_INDPRO_pc1 =(irf_INDPRO_pc1)^2
+squared_irf_INDPRO_pc2 =(irf_INDPRO_pc2)^2
+squared_irf_INDPRO_pc3 =(irf_INDPRO_pc3)^2
+squared_irf_INDPRO_FEDFUNDS =(irf_INDPRO_FEDFUNDS)^2
+
+sum_INDPRO_pc1 = cumsum(squared_irf_INDPRO_pc1)[61] 
+sum_INDPRO_pc2 = cumsum(squared_irf_INDPRO_pc2)[61]
+sum_INDPRO_pc3 =  cumsum(squared_irf_INDPRO_pc3)[61]
+sum_INDPRO_FEDFUNDS = cumsum(squared_irf_INDPRO_FEDFUNDS)[61]
+
+factor_variance_INDPRO = (sum_INDPRO_pc1 + sum_INDPRO_pc2 + 
+                            sum_INDPRO_pc3 + sum_INDPRO_FEDFUNDS)
+residual_variance_INDPRO = (summary_loadings$`Response INDPRO`$sigma)^2
+total_variance_INDPRO = factor_variance_INDPRO + residual_variance_INDPRO
+
+variance_decomposition_INDPRO = sum_INDPRO_FEDFUNDS/ total_variance_INDPRO
+R2_INDPRO = summary_loadings$`Response INDPRO`$r.squared
+
+
+
+# CPIAUCSL
+
+irf_CPIAUCSL_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'CPIAUCSL'])
+irf_CPIAUCSL_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'CPIAUCSL'])
+irf_CPIAUCSL_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'CPIAUCSL'])
+irf_CPIAUCSL_FEDFUNDS = 
+  (irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,'CPIAUCSL']))
+
+squared_irf_CPIAUCSL_pc1 =(irf_CPIAUCSL_pc1)^2
+squared_irf_CPIAUCSL_pc2 =(irf_CPIAUCSL_pc2)^2
+squared_irf_CPIAUCSL_pc3 =(irf_CPIAUCSL_pc3)^2
+squared_irf_CPIAUCSL_FEDFUNDS =(irf_CPIAUCSL_FEDFUNDS)^2
+
+sum_CPIAUCSL_pc1 = cumsum(squared_irf_CPIAUCSL_pc1)[61] 
+sum_CPIAUCSL_pc2 = cumsum(squared_irf_CPIAUCSL_pc2)[61]
+sum_CPIAUCSL_pc3 =  cumsum(squared_irf_CPIAUCSL_pc3)[61]
+sum_CPIAUCSL_FEDFUNDS = cumsum(squared_irf_CPIAUCSL_FEDFUNDS)[61]
+
+factor_variance_CPIAUCSL = (sum_CPIAUCSL_pc1 + sum_CPIAUCSL_pc2 +
+                              sum_CPIAUCSL_pc3 + sum_CPIAUCSL_FEDFUNDS)
+residual_variance_CPIAUCSL = (summary_loadings$`Response CPIAUCSL`$sigma)^2
+total_variance_CPIAUCSL = factor_variance_CPIAUCSL + residual_variance_CPIAUCSL
+
+variance_decomposition_CPIAUCSL = sum_CPIAUCSL_FEDFUNDS/ total_variance_CPIAUCSL
+R2_CPIAUCSL = summary_loadings$`Response CPIAUCSL`$r.squared
+
+# 3 MONTHS
+irf_TB3MS_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'TB3MS'])
+irf_TB3MS_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'TB3MS'])
+irf_TB3MS_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'TB3MS'])
+irf_TB3MS_FEDFUNDS = irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,'TB3MS'])
+
+squared_irf_TB3MS_pc1 =(irf_TB3MS_pc1)^2
+squared_irf_TB3MS_pc2 =(irf_TB3MS_pc2)^2
+squared_irf_TB3MS_pc3 =(irf_TB3MS_pc3)^2
+squared_irf_TB3MS_FEDFUNDS =(irf_TB3MS_FEDFUNDS)^2
+
+sum_TB3MS_pc1 = cumsum(squared_irf_TB3MS_pc1)[61] 
+sum_TB3MS_pc2 = cumsum(squared_irf_TB3MS_pc2)[61]
+sum_TB3MS_pc3 =  cumsum(squared_irf_TB3MS_pc3)[61]
+sum_TB3MS_FEDFUNDS = cumsum(squared_irf_TB3MS_FEDFUNDS)[61]
+
+factor_variance_TB3MS = (sum_TB3MS_pc1 + sum_TB3MS_pc2 +
+                           sum_TB3MS_pc3 + sum_TB3MS_FEDFUNDS)
+residual_variance_TB3MS = (summary_loadings$`Response TB3MS`$sigma)^2
+total_variance_TB3MS = factor_variance_TB3MS + residual_variance_TB3MS
+
+variance_decomposition_TB3MS = sum_TB3MS_FEDFUNDS/ total_variance_TB3MS
+R2_TB3MS = summary_loadings$`Response TB3MS`$r.squared
+
+# 5 YEARS
+
+irf_GS5_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'GS5'])
+irf_GS5_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'GS5'])
+irf_GS5_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'GS5'])
+irf_GS5_FEDFUNDS = irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,'GS5'])
+
+squared_irf_GS5_pc1 =(irf_GS5_pc1)^2
+squared_irf_GS5_pc2 =(irf_GS5_pc2)^2
+squared_irf_GS5_pc3 =(irf_GS5_pc3)^2
+squared_irf_GS5_FEDFUNDS =(irf_GS5_FEDFUNDS)^2
+
+sum_GS5_pc1 = cumsum(squared_irf_GS5_pc1)[61] 
+sum_GS5_pc2 = cumsum(squared_irf_GS5_pc2)[61]
+sum_GS5_pc3 =  cumsum(squared_irf_GS5_pc3)[61]
+sum_GS5_FEDFUNDS = cumsum(squared_irf_GS5_FEDFUNDS)[61]
+
+factor_variance_GS5 = sum_GS5_pc1 + sum_GS5_pc2 + sum_GS5_pc3 + sum_GS5_FEDFUNDS
+residual_variance_GS5 = (summary_loadings$`Response GS5`$sigma)^2
+total_variance_GS5 = factor_variance_GS5 + residual_variance_GS5
+
+variance_decomposition_GS5 = sum_GS5_FEDFUNDS/ total_variance_GS5
+R2_GS5 = summary_loadings$`Response GS5`$r.squared
+
+
+# BOGAMBSL
+
+irf_BOGAMBSL_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'BOGAMBSL'])
+irf_BOGAMBSL_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'BOGAMBSL'])
+irf_BOGAMBSL_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'BOGAMBSL'])
+irf_BOGAMBSL_FEDFUNDS = 
+  irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,'BOGAMBSL'])
+
+squared_irf_BOGAMBSL_pc1 =(irf_BOGAMBSL_pc1)^2
+squared_irf_BOGAMBSL_pc2 =(irf_BOGAMBSL_pc2)^2
+squared_irf_BOGAMBSL_pc3 =(irf_BOGAMBSL_pc3)^2
+squared_irf_BOGAMBSL_FEDFUNDS =(irf_BOGAMBSL_FEDFUNDS)^2
+
+sum_BOGAMBSL_pc1 = cumsum(squared_irf_BOGAMBSL_pc1)[61] 
+sum_BOGAMBSL_pc2 = cumsum(squared_irf_BOGAMBSL_pc2)[61]
+sum_BOGAMBSL_pc3 =  cumsum(squared_irf_BOGAMBSL_pc3)[61]
+sum_BOGAMBSL_FEDFUNDS = cumsum(squared_irf_BOGAMBSL_FEDFUNDS)[61]
+
+factor_variance_BOGAMBSL = (sum_BOGAMBSL_pc1 + sum_BOGAMBSL_pc2 + 
+                              sum_BOGAMBSL_pc3 + sum_BOGAMBSL_FEDFUNDS)
+residual_variance_BOGAMBSL = (summary_loadings$`Response BOGAMBSL`$sigma)^2
+total_variance_BOGAMBSL = factor_variance_BOGAMBSL + residual_variance_BOGAMBSL
+
+variance_decomposition_BOGAMBSL = sum_BOGAMBSL_FEDFUNDS/ total_variance_BOGAMBSL
+R2_BOGAMBSL = summary_loadings$`Response BOGAMBSL`$r.squared
+
+##M2SL
+
+irf_M2SL_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'M2SL'])
+irf_M2SL_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'M2SL'])
+irf_M2SL_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'M2SL'])
+irf_M2SL_FEDFUNDS = irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,'M2SL'])
+
+squared_irf_M2SL_pc1 =(irf_M2SL_pc1)^2
+squared_irf_M2SL_pc2 =(irf_M2SL_pc2)^2
+squared_irf_M2SL_pc3 =(irf_M2SL_pc3)^2
+squared_irf_M2SL_FEDFUNDS =(irf_M2SL_FEDFUNDS)^2
+
+sum_M2SL_pc1 = cumsum(squared_irf_M2SL_pc1)[61] 
+sum_M2SL_pc2 = cumsum(squared_irf_M2SL_pc2)[61]
+sum_M2SL_pc3 =  cumsum(squared_irf_M2SL_pc3)[61]
+sum_M2SL_FEDFUNDS = cumsum(squared_irf_M2SL_FEDFUNDS)[61]
+
+factor_variance_M2SL = (sum_M2SL_pc1 + sum_M2SL_pc2 +
+                          sum_M2SL_pc3 + sum_M2SL_FEDFUNDS)
+residual_variance_M2SL = (summary_loadings$`Response M2SL`$sigma)^2
+total_variance_M2SL = factor_variance_M2SL + residual_variance_M2SL
+
+variance_decomposition_M2SL = sum_M2SL_FEDFUNDS/ total_variance_M2SL
+R2_M2SL = summary_loadings$`Response M2SL`$r.squared
+
+##PPIFGS
+irf_PPIFGS_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'PPIFGS'])
+irf_PPIFGS_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'PPIFGS'])
+irf_PPIFGS_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'PPIFGS'])
+irf_PPIFGS_FEDFUNDS = irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,'PPIFGS'])
+
+squared_irf_PPIFGS_pc1 =(irf_PPIFGS_pc1)^2
+squared_irf_PPIFGS_pc2 =(irf_PPIFGS_pc2)^2
+squared_irf_PPIFGS_pc3 =(irf_PPIFGS_pc3)^2
+squared_irf_PPIFGS_FEDFUNDS =(irf_PPIFGS_FEDFUNDS)^2
+
+sum_PPIFGS_pc1 = cumsum(squared_irf_PPIFGS_pc1)[61] 
+sum_PPIFGS_pc2 = cumsum(squared_irf_PPIFGS_pc2)[61]
+sum_PPIFGS_pc3 =  cumsum(squared_irf_PPIFGS_pc3)[61]
+sum_PPIFGS_FEDFUNDS = cumsum(squared_irf_PPIFGS_FEDFUNDS)[61]
+
+factor_variance_PPIFGS = (sum_PPIFGS_pc1 + sum_PPIFGS_pc2 + 
+                            sum_PPIFGS_pc3 + sum_PPIFGS_FEDFUNDS)
+residual_variance_PPIFGS = (summary_loadings$`Response PPIFGS`$sigma)^2
+total_variance_PPIFGS = factor_variance_PPIFGS + residual_variance_PPIFGS
+
+variance_decomposition_PPIFGS = sum_PPIFGS_FEDFUNDS/ total_variance_PPIFGS
+R2_PPIFGS = summary_loadings$`Response PPIFGS`$r.squared
+
+##CUMFNS
+
+irf_CUMFNS_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'CUMFNS'])
+irf_CUMFNS_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'CUMFNS'])
+irf_CUMFNS_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'CUMFNS'])
+irf_CUMFNS_FEDFUNDS = irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,'CUMFNS'])
+
+squared_irf_CUMFNS_pc1 =(irf_CUMFNS_pc1)^2
+squared_irf_CUMFNS_pc2 =(irf_CUMFNS_pc2)^2
+squared_irf_CUMFNS_pc3 =(irf_CUMFNS_pc3)^2
+squared_irf_CUMFNS_FEDFUNDS =(irf_CUMFNS_FEDFUNDS)^2
+
+sum_CUMFNS_pc1 = cumsum(squared_irf_CUMFNS_pc1)[61] 
+sum_CUMFNS_pc2 = cumsum(squared_irf_CUMFNS_pc2)[61]
+sum_CUMFNS_pc3 =  cumsum(squared_irf_CUMFNS_pc3)[61]
+sum_CUMFNS_FEDFUNDS = cumsum(squared_irf_CUMFNS_FEDFUNDS)[61]
+
+factor_variance_CUMFNS = (sum_CUMFNS_pc1 + sum_CUMFNS_pc2 +
+                            sum_CUMFNS_pc3 + sum_CUMFNS_FEDFUNDS)
+residual_variance_CUMFNS = (summary_loadings$`Response CUMFNS`$sigma)^2
+total_variance_CUMFNS = factor_variance_CUMFNS + residual_variance_CUMFNS
+
+variance_decomposition_CUMFNS = sum_CUMFNS_FEDFUNDS/ total_variance_CUMFNS
+R2_CUMFNS = summary_loadings$`Response CUMFNS`$r.squared
+
+##PCECC96
+
+irf_PCECC96_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'PCECC96'])
+irf_PCECC96_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'PCECC96'])
+irf_PCECC96_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'PCECC96'])
+irf_PCECC96_FEDFUNDS = 
+  irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,'PCECC96'])
+
+squared_irf_PCECC96_pc1 =(irf_PCECC96_pc1)^2
+squared_irf_PCECC96_pc2 =(irf_PCECC96_pc2)^2
+squared_irf_PCECC96_pc3 =(irf_PCECC96_pc3)^2
+squared_irf_PCECC96_FEDFUNDS =(irf_PCECC96_FEDFUNDS)^2
+
+sum_PCECC96_pc1 = cumsum(squared_irf_PCECC96_pc1)[61] 
+sum_PCECC96_pc2 = cumsum(squared_irf_PCECC96_pc2)[61]
+sum_PCECC96_pc3 =  cumsum(squared_irf_PCECC96_pc3)[61]
+sum_PCECC96_FEDFUNDS = cumsum(squared_irf_PCECC96_FEDFUNDS)[61]
+
+factor_variance_PCECC96 = (sum_PCECC96_pc1 + sum_PCECC96_pc2 + 
+                             sum_PCECC96_pc3 + sum_PCECC96_FEDFUNDS)
+residual_variance_PCECC96 = (summary_loadings$`Response PCECC96`$sigma)^2
+total_variance_PCECC96 = factor_variance_PCECC96 + residual_variance_PCECC96
+
+variance_decomposition_PCECC96 = sum_PCECC96_FEDFUNDS/ total_variance_PCECC96
+R2_PCECC96 = summary_loadings$`Response PCECC96`$r.squared
+
+##IPDCONGD
+
+irf_IPDCONGD_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'IPDCONGD'])
+irf_IPDCONGD_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'IPDCONGD'])
+irf_IPDCONGD_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'IPDCONGD'])
+irf_IPDCONGD_FEDFUNDS =
+  irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,'IPDCONGD'])
+
+squared_irf_IPDCONGD_pc1 =(irf_IPDCONGD_pc1)^2
+squared_irf_IPDCONGD_pc2 =(irf_IPDCONGD_pc2)^2
+squared_irf_IPDCONGD_pc3 =(irf_IPDCONGD_pc3)^2
+squared_irf_IPDCONGD_FEDFUNDS =(irf_IPDCONGD_FEDFUNDS)^2
+
+sum_IPDCONGD_pc1 = cumsum(squared_irf_IPDCONGD_pc1)[61] 
+sum_IPDCONGD_pc2 = cumsum(squared_irf_IPDCONGD_pc2)[61]
+sum_IPDCONGD_pc3 =  cumsum(squared_irf_IPDCONGD_pc3)[61]
+sum_IPDCONGD_FEDFUNDS = cumsum(squared_irf_IPDCONGD_FEDFUNDS)[61]
+
+factor_variance_IPDCONGD = (sum_IPDCONGD_pc1 + sum_IPDCONGD_pc2 +
+                              sum_IPDCONGD_pc3 + sum_IPDCONGD_FEDFUNDS)
+residual_variance_IPDCONGD = (summary_loadings$`Response IPDCONGD`$sigma)^2
+total_variance_IPDCONGD = factor_variance_IPDCONGD + residual_variance_IPDCONGD
+
+variance_decomposition_IPDCONGD = sum_IPDCONGD_FEDFUNDS/ total_variance_IPDCONGD
+R2_IPDCONGD = summary_loadings$`Response IPDCONGD`$r.squared
+
+#NON Durable consumption
+
+irf_IPNCONGD_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'IPNCONGD'])
+irf_IPNCONGD_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'IPNCONGD'])
+irf_IPNCONGD_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'IPNCONGD'])
+irf_IPNCONGD_FEDFUNDS = 
+  irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,'IPNCONGD'])
+
+squared_irf_IPNCONGD_pc1 =(irf_IPNCONGD_pc1)^2
+squared_irf_IPNCONGD_pc2 =(irf_IPNCONGD_pc2)^2
+squared_irf_IPNCONGD_pc3 =(irf_IPNCONGD_pc3)^2
+squared_irf_IPNCONGD_FEDFUNDS =(irf_IPNCONGD_FEDFUNDS)^2
+
+sum_IPNCONGD_pc1 = cumsum(squared_irf_IPNCONGD_pc1)[61] 
+sum_IPNCONGD_pc2 = cumsum(squared_irf_IPNCONGD_pc2)[61]
+sum_IPNCONGD_pc3 =  cumsum(squared_irf_IPNCONGD_pc3)[61]
+sum_IPNCONGD_FEDFUNDS = cumsum(squared_irf_IPNCONGD_FEDFUNDS)[61]
+
+factor_variance_IPNCONGD = (sum_IPNCONGD_pc1 + sum_IPNCONGD_pc2 + 
+                              sum_IPNCONGD_pc3 + sum_IPNCONGD_FEDFUNDS)
+residual_variance_IPNCONGD = (summary_loadings$`Response IPNCONGD`$sigma)^2
+total_variance_IPNCONGD = factor_variance_IPNCONGD + residual_variance_IPNCONGD
+
+variance_decomposition_IPNCONGD = sum_IPNCONGD_FEDFUNDS/ total_variance_IPNCONGD
+R2_IPNCONGD = summary_loadings$`Response IPNCONGD`$r.squared
+
+
+
+#### UNEMPLOYMENT
+irf_UNEMPLOY_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'UNEMPLOY'])
+irf_UNEMPLOY_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'UNEMPLOY'])
+irf_UNEMPLOY_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'UNEMPLOY'])
+irf_UNEMPLOY_FEDFUNDS = 
+  irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,'UNEMPLOY'])
+
+squared_irf_UNEMPLOY_pc1 =(irf_UNEMPLOY_pc1)^2
+squared_irf_UNEMPLOY_pc2 =(irf_UNEMPLOY_pc2)^2
+squared_irf_UNEMPLOY_pc3 =(irf_UNEMPLOY_pc3)^2
+squared_irf_UNEMPLOY_FEDFUNDS =(irf_UNEMPLOY_FEDFUNDS)^2
+
+sum_UNEMPLOY_pc1 = cumsum(squared_irf_UNEMPLOY_pc1)[61] 
+sum_UNEMPLOY_pc2 = cumsum(squared_irf_UNEMPLOY_pc2)[61]
+sum_UNEMPLOY_pc3 =  cumsum(squared_irf_UNEMPLOY_pc3)[61]
+sum_UNEMPLOY_FEDFUNDS = cumsum(squared_irf_UNEMPLOY_FEDFUNDS)[61]
+
+factor_variance_UNEMPLOY = (sum_UNEMPLOY_pc1 + sum_UNEMPLOY_pc2 +
+                              sum_UNEMPLOY_pc3 + sum_UNEMPLOY_FEDFUNDS)
+residual_variance_UNEMPLOY = (summary_loadings$`Response UNEMPLOY`$sigma)^2
+total_variance_UNEMPLOY = factor_variance_UNEMPLOY + residual_variance_UNEMPLOY
+
+variance_decomposition_UNEMPLOY = sum_UNEMPLOY_FEDFUNDS/ total_variance_UNEMPLOY
+R2_UNEMPLOY = summary_loadings$`Response UNEMPLOY`$r.squared
+
+
+
+####EMPLOYMENT
+
+
+irf_CE16OV_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'CE16OV'])
+irf_CE16OV_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'CE16OV'])
+irf_CE16OV_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'CE16OV'])
+irf_CE16OV_FEDFUNDS = irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,'CE16OV'])
+
+squared_irf_CE16OV_pc1 =(irf_CE16OV_pc1)^2
+squared_irf_CE16OV_pc2 =(irf_CE16OV_pc2)^2
+squared_irf_CE16OV_pc3 =(irf_CE16OV_pc3)^2
+squared_irf_CE16OV_FEDFUNDS =(irf_CE16OV_FEDFUNDS)^2
+
+sum_CE16OV_pc1 = cumsum(squared_irf_CE16OV_pc1)[61] 
+sum_CE16OV_pc2 = cumsum(squared_irf_CE16OV_pc2)[61]
+sum_CE16OV_pc3 =  cumsum(squared_irf_CE16OV_pc3)[61]
+sum_CE16OV_FEDFUNDS = cumsum(squared_irf_CE16OV_FEDFUNDS)[61]
+
+factor_variance_CE16OV = (sum_CE16OV_pc1 + sum_CE16OV_pc2 + 
+                            sum_CE16OV_pc3 + sum_CE16OV_FEDFUNDS)
+residual_variance_CE16OV = (summary_loadings$`Response CE16OV`$sigma)^2
+total_variance_CE16OV = factor_variance_CE16OV + residual_variance_CE16OV
+
+variance_decomposition_CE16OV = sum_CE16OV_FEDFUNDS/ total_variance_CE16OV
+R2_CE16OV = summary_loadings$`Response CE16OV`$r.squared
+
+
+#### AVER. HOURLY EARNINGS COMPNFB
+
+irf_COMPNFB_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'COMPNFB'])
+irf_COMPNFB_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'COMPNFB'])
+irf_COMPNFB_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'COMPNFB'])
+irf_COMPNFB_FEDFUNDS = 
+  irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,'COMPNFB'])
+
+squared_irf_COMPNFB_pc1 =(irf_COMPNFB_pc1)^2
+squared_irf_COMPNFB_pc2 =(irf_COMPNFB_pc2)^2
+squared_irf_COMPNFB_pc3 =(irf_COMPNFB_pc3)^2
+squared_irf_COMPNFB_FEDFUNDS =(irf_COMPNFB_FEDFUNDS)^2
+
+sum_COMPNFB_pc1 = cumsum(squared_irf_COMPNFB_pc1)[61] 
+sum_COMPNFB_pc2 = cumsum(squared_irf_COMPNFB_pc2)[61]
+sum_COMPNFB_pc3 =  cumsum(squared_irf_COMPNFB_pc3)[61]
+sum_COMPNFB_FEDFUNDS = cumsum(squared_irf_COMPNFB_FEDFUNDS)[61]
+
+factor_variance_COMPNFB = (sum_COMPNFB_pc1 + sum_COMPNFB_pc2 +
+                             sum_COMPNFB_pc3 + sum_COMPNFB_FEDFUNDS)
+residual_variance_COMPNFB = (summary_loadings$`Response COMPNFB`$sigma)^2
+total_variance_COMPNFB = factor_variance_COMPNFB + residual_variance_COMPNFB
+
+variance_decomposition_COMPNFB = sum_COMPNFB_FEDFUNDS/ total_variance_COMPNFB
+R2_COMPNFB = summary_loadings$`Response COMPNFB`$r.squared
+
+#### HOUSING STARTS
+
+irf_HOUST_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'HOUST'])
+irf_HOUST_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'HOUST'])
+irf_HOUST_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'HOUST'])
+irf_HOUST_FEDFUNDS = irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,'HOUST'])
+
+squared_irf_HOUST_pc1 =(irf_HOUST_pc1)^2
+squared_irf_HOUST_pc2 =(irf_HOUST_pc2)^2
+squared_irf_HOUST_pc3 =(irf_HOUST_pc3)^2
+squared_irf_HOUST_FEDFUNDS =(irf_HOUST_FEDFUNDS)^2
+
+sum_HOUST_pc1 = cumsum(squared_irf_HOUST_pc1)[61] 
+sum_HOUST_pc2 = cumsum(squared_irf_HOUST_pc2)[61]
+sum_HOUST_pc3 =  cumsum(squared_irf_HOUST_pc3)[61]
+sum_HOUST_FEDFUNDS = cumsum(squared_irf_HOUST_FEDFUNDS)[61]
+
+factor_variance_HOUST = (sum_HOUST_pc1 + sum_HOUST_pc2 +
+                           sum_HOUST_pc3 + sum_HOUST_FEDFUNDS)
+residual_variance_HOUST = (summary_loadings$`Response HOUST`$sigma)^2
+total_variance_HOUST = factor_variance_HOUST + residual_variance_HOUST
+
+variance_decomposition_HOUST = sum_HOUST_FEDFUNDS/ total_variance_HOUST
+R2_HOUST = summary_loadings$`Response HOUST`$r.squared
+
+### DIVIDEND
+
+irf_DIVIDEND_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'DIVIDEND'])
+irf_DIVIDEND_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'DIVIDEND'])
+irf_DIVIDEND_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'DIVIDEND'])
+irf_DIVIDEND_FEDFUNDS = 
+  irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,'DIVIDEND'])
+
+squared_irf_DIVIDEND_pc1 =(irf_DIVIDEND_pc1)^2
+squared_irf_DIVIDEND_pc2 =(irf_DIVIDEND_pc2)^2
+squared_irf_DIVIDEND_pc3 =(irf_DIVIDEND_pc3)^2
+squared_irf_DIVIDEND_FEDFUNDS =(irf_DIVIDEND_FEDFUNDS)^2
+
+sum_DIVIDEND_pc1 = cumsum(squared_irf_DIVIDEND_pc1)[61] 
+sum_DIVIDEND_pc2 = cumsum(squared_irf_DIVIDEND_pc2)[61]
+sum_DIVIDEND_pc3 =  cumsum(squared_irf_DIVIDEND_pc3)[61]
+sum_DIVIDEND_FEDFUNDS = cumsum(squared_irf_DIVIDEND_FEDFUNDS)[61]
+
+factor_variance_DIVIDEND = (sum_DIVIDEND_pc1 + sum_DIVIDEND_pc2 + 
+                              sum_DIVIDEND_pc3 + sum_DIVIDEND_FEDFUNDS)
+residual_variance_DIVIDEND = (summary_loadings$`Response DIVIDEND`$sigma)^2
+total_variance_DIVIDEND = factor_variance_DIVIDEND + residual_variance_DIVIDEND
+
+variance_decomposition_DIVIDEND = sum_DIVIDEND_FEDFUNDS/ total_variance_DIVIDEND
+R2_DIVIDEND = summary_loadings$`Response DIVIDEND`$r.squared
+
+### CONSUMER EXPECTATIONS
+
+irf_UMCSENT_pc1 = irf_total$irf$PC1 %*% matrix(loadings[1:4,'UMCSENT'])
+irf_UMCSENT_pc2 = irf_total$irf$PC2 %*% matrix(loadings[1:4,'UMCSENT'])
+irf_UMCSENT_pc3 = irf_total$irf$PC3 %*% matrix(loadings[1:4,'UMCSENT'])
+irf_UMCSENT_FEDFUNDS =
+  irf_total$irf$FEDFUNDS %*% matrix(loadings[1:4,'UMCSENT'])
+
+squared_irf_UMCSENT_pc1 =(irf_UMCSENT_pc1)^2
+squared_irf_UMCSENT_pc2 =(irf_UMCSENT_pc2)^2
+squared_irf_UMCSENT_pc3 =(irf_UMCSENT_pc3)^2
+squared_irf_UMCSENT_FEDFUNDS =(irf_UMCSENT_FEDFUNDS)^2
+
+sum_UMCSENT_pc1 = cumsum(squared_irf_UMCSENT_pc1)[61] 
+sum_UMCSENT_pc2 = cumsum(squared_irf_UMCSENT_pc2)[61]
+sum_UMCSENT_pc3 =  cumsum(squared_irf_UMCSENT_pc3)[61]
+sum_UMCSENT_FEDFUNDS = cumsum(squared_irf_UMCSENT_FEDFUNDS)[61]
+
+factor_variance_UMCSENT = (sum_UMCSENT_pc1 + sum_UMCSENT_pc2 + 
+                             sum_UMCSENT_pc3 + sum_UMCSENT_FEDFUNDS)
+residual_variance_UMCSENT = (summary_loadings$`Response UMCSENT`$sigma)^2
+total_variance_UMCSENT = factor_variance_UMCSENT + residual_variance_UMCSENT
+
+variance_decomposition_UMCSENT = sum_UMCSENT_FEDFUNDS/ total_variance_UMCSENT
+R2_UMCSENT = summary_loadings$`Response UMCSENT`$r.squared
+```
+
+We build a table describing what is the amount of the factor variance and of the idiosyncratic component for each of the variables of interest. Commands are shown in the Markdown file.
+
+```{r TABLE VAR DEC , echo=FALSE}
+factor_variance=c(factor_variance_FEDFUNDS,factor_variance_INDPRO,
+                  factor_variance_CPIAUCSL,
+                  factor_variance_TB3MS,factor_variance_GS5,
+                  factor_variance_BOGAMBSL,
+                  factor_variance_M2SL,factor_variance_PPIFGS,
+                  factor_variance_CUMFNS,factor_variance_PCECC96,
+                  factor_variance_IPDCONGD,factor_variance_IPNCONGD,
+                  factor_variance_UNEMPLOY,
+                  factor_variance_CE16OV,factor_variance_COMPNFB,
+                  factor_variance_HOUST,
+                  factor_variance_DIVIDEND,factor_variance_UMCSENT)
+
+residual_variance=c(residual_variance_FEDFUNDS,residual_variance_INDPRO,
+                    residual_variance_CPIAUCSL,residual_variance_TB3MS,
+                    residual_variance_GS5,residual_variance_BOGAMBSL,
+                    residual_variance_M2SL,residual_variance_PPIFGS,
+                    residual_variance_CUMFNS,residual_variance_PCECC96,
+                    residual_variance_IPDCONGD,residual_variance_IPNCONGD,
+                    residual_variance_UNEMPLOY,residual_variance_CE16OV,
+                    residual_variance_COMPNFB,residual_variance_HOUST,
+                    residual_variance_DIVIDEND,residual_variance_UMCSENT)
+
+total_variance=c(total_variance_FEDFUNDS,total_variance_INDPRO,
+                 total_variance_CPIAUCSL,total_variance_TB3MS,
+                 total_variance_GS5,total_variance_BOGAMBSL,
+                 total_variance_M2SL,total_variance_PPIFGS,
+                 total_variance_CUMFNS,total_variance_PCECC96,
+                 total_variance_IPDCONGD,total_variance_IPNCONGD,
+                 total_variance_UNEMPLOY,total_variance_CE16OV,
+                 total_variance_COMPNFB,total_variance_HOUST,
+                 total_variance_DIVIDEND,total_variance_UMCSENT)
+
+var_dec=data.frame('Variable'= c('Fed funds rate','Industrial production',
+                     'Consumer Price Index',
+                     '3-Month Treasury Bill','5y Treasury Bonds',
+                     'Monetray Base',
+                     'M2','Producer Price Index','Capacity utilization rate',
+                     'Personal Consumption','Durable Consumer Goods',
+                     'Nondurable Goods',
+                     'Unemployment Level','Employment Level',
+                     'avg hourly earnings',
+                     'Housing Starts','Dividends','Consumer Expectations'),
+                     'Factor variance'=factor_variance,
+                   'Idiosyncratic component'=residual_variance,
+                   'Total variance' = total_variance)
+library(knitr)
+kable(var_dec, digits = 3, caption = 'variance decomposition')
+```
+
+  And finally we can replicate TABLE 1 of the paper, describing the contribution of the monetary policy shock to the total variance and the R2 of the common component for each of the variables studied. Again, commands are only reported in the Markdown file.
+
+```{r TABELLA VAR DEC and R2, echo=FALSE}
+R2 = rbind(R2_FEDFUNDS,R2_INDPRO,R2_CPIAUCSL,R2_TB3MS,R2_GS5,R2_BOGAMBSL,
+      R2_M2SL, R2_PPIFGS, R2_CUMFNS, R2_PCECC96, R2_IPDCONGD, R2_IPNCONGD,
+      R2_UNEMPLOY,R2_CE16OV,R2_COMPNFB,R2_HOUST,R2_DIVIDEND, R2_UMCSENT)
+
+variance_decomposition = rbind(variance_decomposition_FEDFUNDS,
+                               variance_decomposition_INDPRO,
+                               variance_decomposition_CPIAUCSL,
+      variance_decomposition_TB3MS,variance_decomposition_GS5,
+      variance_decomposition_BOGAMBSL,
+      variance_decomposition_M2SL,variance_decomposition_PPIFGS,
+      variance_decomposition_CUMFNS,
+      variance_decomposition_PCECC96,variance_decomposition_IPDCONGD,
+      variance_decomposition_IPNCONGD,
+      variance_decomposition_UNEMPLOY,variance_decomposition_CE16OV,
+      variance_decomposition_COMPNFB,
+      variance_decomposition_HOUST,variance_decomposition_DIVIDEND,
+      variance_decomposition_UMCSENT)
+
+
+TABLE_1=cbind(variance_decomposition,R2)
+rownames(TABLE_1)= c('Fed funds rate','Industrial production',
+                     'Consumer Price Index',
+                     '3-Month Treasury Bill','5y Treasury Bonds',
+                     'Monetray Base',
+                     'M2','Producer Price Index','Capacity utilization rate',
+                     'Personal Consumption','Durable Consumer Goods',
+                     'Nondurable Goods',
+                     'Unemployment Level','Employment Level',
+                     'avg hourly earnings',
+                     'Housing Starts','Dividends','Consumer Expectations')
+colnames(TABLE_1)=c('Variance decomposition','R2')
+TABLE_1.df=as.data.frame(TABLE_1)
+library(knitr)
+kable(TABLE_1.df, 
+      digits = 3,
+      caption = "TABLE 1")
+```
+  Again, taking into consideration the fact that our dataset is slightly different, the results obtained in this case are higher. What we obtain is that the policy shock explains an higher percentage of our variables of interest. Apart from the interest rates, the contribution of the policy shock ranges between 6.6 and 37.5 percent. 
+  Despite that, the relationships between the results is unaltered. For example, variables such as Industrial Production and Consumer Price Index maintains an high $R^2$, respectively: 0.762 and 0.792. For Employment and Unemployment levels relation still holds, with slightly lower results in $R^2$, but still we can assert that the FAVAR framework, estimated by the two-step principal component approach, does capture important dimensions of the business cycle movements.
+  In addition to this, the $R^2$ of the common components is particularly low for the money aggregates, as in the paper.
+  
